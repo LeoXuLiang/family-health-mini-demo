@@ -1,0 +1,36 @@
+.tabbar-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: #ffffff;
+  border-top: 1rpx solid #e3ebe6;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar {
+  height: 96rpx;
+  display: flex;
+}
+
+.tab-item {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-text {
+  color: #64746e;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tab-text-active {
+  color: #2f8f72;
+  font-weight: 900;
+}

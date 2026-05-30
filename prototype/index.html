@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>家庭健康跟踪助手原型</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="phone-shell" aria-label="家庭健康跟踪助手小程序原型">
+      <section class="app-screen">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">家庭健康跟踪助手</p>
+            <h1 id="pageTitle">今天</h1>
+          </div>
+          <button class="icon-button" aria-label="消息提醒">铃</button>
+        </header>
+
+        <section class="member-strip" aria-label="成员切换">
+          <button class="member-pill active" data-member="all">全家</button>
+          <button class="member-pill" data-member="me">我</button>
+          <button class="member-pill" data-member="wife">妻子</button>
+          <button class="member-pill" data-member="dad">爸爸</button>
+          <button class="member-pill" data-member="mom">妈妈</button>
+        </section>
+
+        <section class="tab-panel active" data-page="today">
+          <article class="hero-card">
+            <div>
+              <p class="card-label">今日概况</p>
+              <h2>6 人中 4 人已完成记录</h2>
+              <p>爸爸今天还缺血压，岳母还缺餐后血糖。</p>
+            </div>
+            <div class="score-ring" aria-label="今日完成度 78%">78%</div>
+          </article>
+
+          <section class="quick-grid" aria-label="快捷记录">
+            <button class="quick-action">
+              <span class="quick-icon">压</span>
+              <strong>记血压</strong>
+              <small>早晚各一次</small>
+            </button>
+            <button class="quick-action">
+              <span class="quick-icon blue">糖</span>
+              <strong>记血糖</strong>
+              <small>餐前或餐后</small>
+            </button>
+            <button class="quick-action">
+              <span class="quick-icon coral">重</span>
+              <strong>称体重</strong>
+              <small>同步体脂</small>
+            </button>
+            <button class="quick-action">
+              <span class="quick-icon gold">餐</span>
+              <strong>拍一餐</strong>
+              <small>分析搭配</small>
+            </button>
+          </section>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>需要关注</h2>
+              <button class="text-button">查看全部</button>
+            </div>
+            <article class="notice-card warn">
+              <div>
+                <strong>爸爸 血压待记录</strong>
+                <p>上次记录为昨晚 20:12，建议今天早晨补记。</p>
+              </div>
+              <button class="small-button">去记录</button>
+            </article>
+            <article class="notice-card">
+              <div>
+                <strong>妈妈 睡眠平稳</strong>
+                <p>近 7 天平均 7.1 小时，晚间醒来次数减少。</p>
+              </div>
+              <span class="status-chip">平稳</span>
+            </article>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-page="records">
+          <section class="input-card">
+            <p class="card-label">帮谁记录</p>
+            <div class="segmented">
+              <button class="active">爸爸</button>
+              <button>妈妈</button>
+              <button>岳母</button>
+            </div>
+            <label class="field-label" for="metricType">记录项目</label>
+            <select id="metricType" class="field">
+              <option>血压</option>
+              <option>血糖</option>
+              <option>体重</option>
+              <option>心率</option>
+              <option>睡眠</option>
+            </select>
+            <div class="bp-row">
+              <label>
+                <span>收缩压</span>
+                <input type="number" value="128">
+              </label>
+              <label>
+                <span>舒张压</span>
+                <input type="number" value="78">
+              </label>
+            </div>
+            <button class="primary-button">确认保存爸爸的血压</button>
+          </section>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>最近趋势</h2>
+              <div class="period-switch">
+                <button class="active">7天</button>
+                <button>30天</button>
+              </div>
+            </div>
+            <div class="trend-card" aria-label="血压趋势图">
+              <div class="chart-bars">
+                <span style="height: 48%"></span>
+                <span style="height: 58%"></span>
+                <span style="height: 45%"></span>
+                <span style="height: 62%"></span>
+                <span style="height: 54%"></span>
+                <span style="height: 50%"></span>
+                <span style="height: 56%"></span>
+              </div>
+              <p>近 7 天血压波动不大，继续保持早晚记录。</p>
+            </div>
+          </section>
+
+          <section class="record-list">
+            <article>
+              <span>今天 07:42</span>
+              <strong>血压 128 / 78 mmHg</strong>
+            </article>
+            <article>
+              <span>昨天 20:12</span>
+              <strong>心率 72 次/分</strong>
+            </article>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-page="meals">
+          <article class="meal-camera">
+            <p class="card-label">饮食分析</p>
+            <h2>拍下这一餐</h2>
+            <p>识别菜品和搭配，结合近期指标给出家庭营养建议。</p>
+            <button class="primary-button">拍照分析</button>
+          </article>
+
+          <section class="analysis-card">
+            <div class="section-title">
+              <h2>午餐分析示例</h2>
+              <span class="status-chip">匹配度 82</span>
+            </div>
+            <div class="meal-plate">
+              <div>米饭</div>
+              <div>青菜</div>
+              <div>鱼肉</div>
+              <div>汤</div>
+            </div>
+            <div class="nutrition-grid">
+              <div>
+                <span>碳水</span>
+                <strong>适中</strong>
+              </div>
+              <div>
+                <span>蛋白</span>
+                <strong>充足</strong>
+              </div>
+              <div>
+                <span>蔬菜</span>
+                <strong>偏少</strong>
+              </div>
+            </div>
+            <p class="advice">建议晚餐增加一份深色蔬菜，少放盐。图片识别可能不准确，可手动修正菜品和份量。</p>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-page="family">
+          <section class="family-grid">
+            <article class="person-card admin">
+              <span>管理员</span>
+              <strong>我</strong>
+              <p>可查看全家</p>
+            </article>
+            <article class="person-card admin">
+              <span>管理员</span>
+              <strong>妻子</strong>
+              <p>可查看全家</p>
+            </article>
+            <article class="person-card">
+              <span>父母组 A</span>
+              <strong>爸爸</strong>
+              <p>可看本人和妈妈</p>
+            </article>
+            <article class="person-card">
+              <span>父母组 A</span>
+              <strong>妈妈</strong>
+              <p>可看本人和爸爸</p>
+            </article>
+            <article class="person-card">
+              <span>父母组 B</span>
+              <strong>岳父</strong>
+              <p>可看本人和岳母</p>
+            </article>
+            <article class="person-card">
+              <span>父母组 B</span>
+              <strong>岳母</strong>
+              <p>可看本人和岳父</p>
+            </article>
+          </section>
+
+          <section class="section-block">
+            <div class="section-title">
+              <h2>家庭设置</h2>
+            </div>
+            <button class="settings-row">
+              <span>提醒设置</span>
+              <strong>12 个已开启</strong>
+            </button>
+            <button class="settings-row">
+              <span>隐私和授权</span>
+              <strong>成员可撤回</strong>
+            </button>
+            <button class="settings-row">
+              <span>就医与用药记录</span>
+              <strong>仅记录医嘱</strong>
+            </button>
+          </section>
+        </section>
+
+        <p class="medical-note">仅作家庭健康管理参考，不替代医生诊断。涉及用药调整请咨询医生或药师。</p>
+
+        <nav class="bottom-tabs" aria-label="底部导航">
+          <button class="active" data-target="today">今天</button>
+          <button data-target="records">记录</button>
+          <button data-target="meals">饮食</button>
+          <button data-target="family">家庭</button>
+        </nav>
+      </section>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>

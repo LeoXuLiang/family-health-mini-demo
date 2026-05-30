@@ -1,0 +1,119 @@
+{
+  "pages": [
+    {
+      "path": "pages/today/index",
+      "style": {
+        "navigationBarTitleText": "今天",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/records/index",
+      "style": {
+        "navigationBarTitleText": "记录",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/meals/index",
+      "style": {
+        "navigationBarTitleText": "饮食",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/medications/index",
+      "style": {
+        "navigationBarTitleText": "用药",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/family/index",
+      "style": {
+        "navigationBarTitleText": "家庭",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/member/detail",
+      "style": {
+        "navigationBarTitleText": "成员档案",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/reminders/index",
+      "style": {
+        "navigationBarTitleText": "提醒设置",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/care/index",
+      "style": {
+        "navigationBarTitleText": "就医用药",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/data/index",
+      "style": {
+        "navigationBarTitleText": "数据管理",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/invite/index",
+      "style": {
+        "navigationBarTitleText": "邀请家人",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    }
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#66756f",
+    "selectedColor": "#2f8f72",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/today/index",
+        "text": "今天"
+      },
+      {
+        "pagePath": "pages/records/index",
+        "text": "记录"
+      },
+      {
+        "pagePath": "pages/meals/index",
+        "text": "饮食"
+      },
+      {
+        "pagePath": "pages/medications/index",
+        "text": "用药"
+      },
+      {
+        "pagePath": "pages/family/index",
+        "text": "家庭"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "家庭健康",
+    "navigationBarBackgroundColor": "#eef5ef",
+    "backgroundColor": "#eef5ef"
+  }
+}

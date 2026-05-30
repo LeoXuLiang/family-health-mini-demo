@@ -1,0 +1,140 @@
+.page {
+  min-height: 100vh;
+  padding-bottom: 96rpx;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(47, 143, 114, 0.14), transparent 34%),
+    linear-gradient(135deg, #eef5ef 0%, #f8f2e6 100%);
+}
+
+.content {
+  width: 100vw;
+  max-width: 100%;
+  padding: 0 32rpx;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1rpx solid rgba(220, 232, 226, 0.9);
+  border-radius: 8rpx;
+  background: #ffffff;
+  box-shadow: 0 14rpx 34rpx rgba(43, 74, 62, 0.08);
+}
+
+.content > .card,
+.content > .settings-row {
+  width: 100%;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 36rpx 0 18rpx;
+}
+
+.section-title-text {
+  color: #18332d;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.link-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56rpx;
+  color: #2f8f72;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 96rpx;
+  border-radius: 8rpx;
+  background: #2f8f72;
+  color: #ffffff;
+  font-size: 34rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 82rpx;
+  border-radius: 8rpx;
+  background: #e7f0eb;
+  color: #2b5d50;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.muted {
+  color: #66756f;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54rpx;
+  padding: 0 20rpx;
+  border-radius: 999rpx;
+  background: #dff2ea;
+  color: #2f8f72;
+  font-size: 25rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.empty-space {
+  height: 12rpx;
+}
+
+.accent-green {
+  color: #2f8f72;
+  background: #dff2ea;
+}
+
+.accent-blue {
+  color: #3a73c9;
+  background: #e2ecfb;
+}
+
+.accent-coral {
+  color: #d96a55;
+  background: #fae5df;
+}
+
+.accent-gold {
+  color: #b98926;
+  background: #fff1cf;
+}
+
+.accent-mint {
+  color: #19807c;
+  background: #d8f0ed;
+}
+
+.accent-violet {
+  color: #7862c8;
+  background: #eee9ff;
+}

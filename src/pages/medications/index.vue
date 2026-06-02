@@ -151,7 +151,7 @@ import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { getMember } from "../../data/demoData";
 import { appState, visibleMembers } from "../../state/appState";
-import { confirmMedication, createMedicationReminder, listMedicationTasks } from "../../services/mockBackend";
+import { confirmMedication, createMedicationReminder, listMedicationTasks } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const allTasks = ref([]);

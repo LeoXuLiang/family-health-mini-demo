@@ -31,7 +31,7 @@
 import { computed, ref } from "vue";
 import { members } from "../data/demoData";
 import { acceptPrivacy } from "../state/appState";
-import { bindMember, loginWithWechat } from "../services/mockBackend";
+import { bindMember, loginWithWechat } from "../services/cloudService";
 import { appState } from "../state/appState";
 
 const selectedIndex = ref(0);

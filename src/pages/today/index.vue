@@ -92,7 +92,7 @@ import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { canReceiveReminder, getMember, quickActions, reminders, todaySummaries } from "../../data/demoData";
 import { appState, setPendingMetric, visibleMembers } from "../../state/appState";
-import { listMedicationTasks } from "../../services/mockBackend";
+import { listMedicationTasks } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const summaries = todaySummaries;

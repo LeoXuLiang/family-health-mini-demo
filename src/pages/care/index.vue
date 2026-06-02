@@ -170,7 +170,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import { getMember } from "../../data/demoData";
 import { appState } from "../../state/appState";
-import { createCareRecord, listCareRecords } from "../../services/mockBackend";
+import { createCareRecord, listCareRecords } from "../../services/cloudService";
 
 const visitTypes = ["门诊", "复诊", "急诊", "住院", "体检"];
 const memberId = ref("dad");

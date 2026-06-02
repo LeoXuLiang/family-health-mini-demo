@@ -2,6 +2,15 @@
 export default {
   onLaunch() {
     console.log("家康小记 启动");
+    try {
+      wx.cloud.init({
+        env: "cloudbase-d6g9ez3uu31f0c644",
+        traceUser: true
+      });
+      console.log("云开发已初始化");
+    } catch (error) {
+      console.warn("云开发初始化失败，使用本地存储降级", error);
+    }
   }
 };
 </script>

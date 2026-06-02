@@ -91,7 +91,7 @@ import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { getMember, mealAnalyses } from "../../data/demoData";
 import { appState, visibleMembers } from "../../state/appState";
-import { analyzeMealImage } from "../../services/mockBackend";
+import { analyzeMealImage } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const mealImage = ref("");

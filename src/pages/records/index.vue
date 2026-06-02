@@ -138,11 +138,10 @@ import {
   getMember,
   metricTypes,
   sleepOptions,
-  recentRecords,
   todaySummaries
 } from "../../data/demoData";
 import { appState, consumePendingMetric, visibleMembers } from "../../state/appState";
-import { saveMetricRecord } from "../../services/mockBackend";
+import { saveMetricRecord, listMetricRecords } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const selectedMetricIndex = ref(0);
@@ -153,7 +152,7 @@ const sleepStatus = ref("睡得好");
 const note = ref("");
 const isRecording = ref(false);
 const period = ref(7);
-const savedRecords = ref([...recentRecords]);
+const savedRecords = ref([]);
 const recordingStarted = ref(false);
 
 const metricLabels = metricTypes.map((metric) => metric.label);
@@ -184,7 +183,9 @@ function setMetricByIndex(index) {
   }
 }
 
-onShow(() => {
+onShow(async () => {
+  await loadRecords();
+
   const pendingMetricKey = consumePendingMetric();
   if (!pendingMetricKey) {
     return;
@@ -195,6 +196,10 @@ onShow(() => {
     setMetricByIndex(index);
   }
 });
+
+async function loadRecords() {
+  savedRecords.value = await listMetricRecords(appState.viewerId);
+}
 
 async function saveRecord() {
   const metric = selectedMetric.value;

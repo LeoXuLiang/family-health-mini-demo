@@ -32,7 +32,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import { dataChecklist, getMember } from "../../data/demoData";
 import { resetDemoState, appState } from "../../state/appState";
-import { requestDataDeletion } from "../../services/mockBackend";
+import { requestDataDeletion } from "../../services/cloudService";
 
 const memberId = ref("me");
 onLoad((query) => {

@@ -79,6 +79,7 @@
 
     <MedicalNote />
     <OnboardingPanel />
+    <TabBar :active="0" />
   </view>
 </template>
 
@@ -88,6 +89,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
+import TabBar from "../../components/TabBar.vue";
 import { canReceiveReminder, getMember, quickActions, reminders, todaySummaries } from "../../data/demoData";
 import { appState, setPendingMetric, visibleMembers } from "../../state/appState";
 import { listMedicationTasks } from "../../services/mockBackend";
@@ -191,8 +193,8 @@ async function showReminderList() {
 
 .eyebrow {
   display: block;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .hero-title {
@@ -208,7 +210,7 @@ async function showReminderList() {
 .hero-desc {
   display: block;
   margin-top: 10rpx;
-  color: #66756f;
+  color: #4a5c55;
   font-size: 29rpx;
   line-height: 1.5;
 }
@@ -271,7 +273,7 @@ async function showReminderList() {
 .quick-subtitle {
   display: block;
   margin-top: 8rpx;
-  color: #66756f;
+  color: #4a5c55;
   font-size: 29rpx;
   line-height: 1.35;
 }
@@ -312,8 +314,8 @@ async function showReminderList() {
 .notice-detail {
   display: block;
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 28rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -326,7 +328,7 @@ async function showReminderList() {
   border-radius: 999rpx;
   background: #d96a55;
   color: #ffffff;
-  font-size: 27rpx;
+  font-size: 30rpx;
   font-weight: 800;
   line-height: 1.2;
   text-align: center;
@@ -364,14 +366,14 @@ async function showReminderList() {
   border-radius: 999rpx;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 24rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
 .person-metric {
   min-width: 230rpx;
   text-align: right;
-  color: #66756f;
+  color: #4a5c55;
   font-size: 29rpx;
   line-height: 1.5;
 }

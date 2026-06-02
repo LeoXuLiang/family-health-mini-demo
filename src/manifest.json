@@ -1,9 +1,9 @@
 {
-  "name": "家庭健康跟踪助手",
+  "name": "家康小记",
   "appid": "__UNI__FAMILY_HEALTH_DEMO",
-  "description": "家庭健康指标记录与饮食分析 Demo",
-  "versionName": "0.1.0",
-  "versionCode": "1",
+  "description": "家庭健康记录与饮食管理",
+  "versionName": "0.2.0",
+  "versionCode": "2",
   "transformPx": false,
   "mp-weixin": {
     "appid": "wxf1e84dc47f481b3a",
@@ -16,7 +16,7 @@
     "usingComponents": true
   },
   "h5": {
-    "title": "家庭健康跟踪助手 Demo",
+    "title": "家康小记",
     "router": {
       "mode": "hash"
     }

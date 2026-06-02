@@ -121,6 +121,7 @@
 
     <MedicalNote />
     <OnboardingPanel />
+    <TabBar :active="1" />
   </view>
 </template>
 
@@ -131,6 +132,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
+import TabBar from "../../components/TabBar.vue";
 import TrendBars from "../../components/TrendBars.vue";
 import {
   getMember,
@@ -196,6 +198,34 @@ onShow(() => {
 
 async function saveRecord() {
   const metric = selectedMetric.value;
+
+  if (metric.key === "bloodPressure") {
+    const sys = Number(systolic.value);
+    const dia = Number(diastolic.value);
+    if (!sys || !dia || sys < 60 || sys > 250 || dia < 30 || dia > 150) {
+      uni.showToast({ title: "请填写合理的血压数值", icon: "none" });
+      return;
+    }
+  } else if (metric.key === "bloodGlucose") {
+    const val = Number(metricValue.value);
+    if (!val || val < 1 || val > 35) {
+      uni.showToast({ title: "请填写合理的血糖数值（1-35 mmol/L）", icon: "none" });
+      return;
+    }
+  } else if (metric.key === "weight") {
+    const val = Number(metricValue.value);
+    if (!val || val < 20 || val > 300) {
+      uni.showToast({ title: "请填写合理的体重数值（20-300 kg）", icon: "none" });
+      return;
+    }
+  } else if (metric.key === "heartRate") {
+    const val = Number(metricValue.value);
+    if (!val || val < 30 || val > 250) {
+      uni.showToast({ title: "请填写合理的心率数值（30-250 次/分）", icon: "none" });
+      return;
+    }
+  }
+
   let value = `${metricValue.value} ${metric.unit}`.trim();
 
   if (metric.key === "bloodPressure") {
@@ -216,11 +246,7 @@ async function saveRecord() {
 
   savedRecords.value.unshift(savedRecord);
 
-  uni.showModal({
-    title: "保存成功",
-    content: `已保存${selectedMember.value.name}的${metric.label}记录。`,
-    showCancel: false
-  });
+  uni.showToast({ title: `已保存${selectedMember.value.name}的${metric.label}`, icon: "success" });
 }
 
 function toggleVoiceInput() {
@@ -279,8 +305,8 @@ function toggleVoiceInput() {
 .card-label,
 .field-label {
   display: block;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .member-confirm {
@@ -300,8 +326,8 @@ function toggleVoiceInput() {
 .confirm-note {
   display: block;
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .field-block {
@@ -325,7 +351,7 @@ function toggleVoiceInput() {
 
 .picker-arrow {
   color: #2f8f72;
-  font-size: 27rpx;
+  font-size: 30rpx;
 }
 
 .bp-row {
@@ -342,8 +368,8 @@ function toggleVoiceInput() {
 .number-field text {
   display: block;
   margin-bottom: 12rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .number-field input {
@@ -404,8 +430,8 @@ function toggleVoiceInput() {
 
 .sleep-options text:last-child {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 24rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .voice-row {
@@ -421,8 +447,8 @@ function toggleVoiceInput() {
 .voice-row text {
   flex: 1;
   min-width: 0;
-  color: #66756f;
-  font-size: 24rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -435,7 +461,7 @@ function toggleVoiceInput() {
   border-radius: 999rpx;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 27rpx;
+  font-size: 30rpx;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;
@@ -455,7 +481,7 @@ function toggleVoiceInput() {
   border-radius: 8rpx;
   background: #fbfdfc;
   color: #18332d;
-  font-size: 28rpx;
+  font-size: 30rpx;
 }
 
 .save-button {
@@ -480,8 +506,8 @@ function toggleVoiceInput() {
   min-width: 86rpx;
   min-height: 58rpx;
   border-radius: 999rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   font-weight: 800;
   line-height: 1.2;
   text-align: center;
@@ -499,8 +525,8 @@ function toggleVoiceInput() {
 .trend-desc {
   display: block;
   margin-top: 18rpx;
-  color: #66756f;
-  font-size: 28rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -525,8 +551,8 @@ function toggleVoiceInput() {
 }
 
 .record-time {
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .record-value {

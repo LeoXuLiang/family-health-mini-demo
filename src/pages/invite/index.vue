@@ -52,8 +52,8 @@ function shareInvite() {
 }
 
 .label {
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .code {
@@ -67,8 +67,8 @@ function shareInvite() {
 .desc,
 .step-card text {
   margin-top: 12rpx;
-  color: #66756f;
-  font-size: 27rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 

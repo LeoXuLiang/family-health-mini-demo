@@ -277,7 +277,7 @@ async function saveCareRecord() {
 
 .label {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -293,8 +293,8 @@ async function saveCareRecord() {
 .desc,
 .record-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -322,8 +322,8 @@ async function saveCareRecord() {
 }
 
 .field-label {
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .field input,
@@ -401,7 +401,7 @@ async function saveCareRecord() {
   justify-content: center;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 24rpx;
+  font-size: 30rpx;
   font-weight: 900;
 }
 
@@ -414,14 +414,14 @@ async function saveCareRecord() {
 
 .detail-title {
   color: #18332d;
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 900;
 }
 
 .detail-line {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 

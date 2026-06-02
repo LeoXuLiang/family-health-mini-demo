@@ -1,7 +1,7 @@
 <script>
 export default {
   onLaunch() {
-    console.log("家庭健康跟踪助手 Demo 启动");
+    console.log("家康小记 启动");
   }
 };
 </script>

@@ -72,6 +72,7 @@
 
     <MedicalNote />
     <OnboardingPanel />
+    <TabBar :active="5" />
   </view>
 </template>
 
@@ -80,6 +81,7 @@ import { computed } from "vue";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
+import TabBar from "../../components/TabBar.vue";
 import { viewerOptions } from "../../data/demoData";
 import { appState, switchViewer, visibleMembers } from "../../state/appState";
 
@@ -126,8 +128,8 @@ function openSetting(title) {
 
 .card-label {
   display: block;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .overview-title {
@@ -142,8 +144,8 @@ function openSetting(title) {
 .overview-desc {
   display: block;
   margin-top: 10rpx;
-  color: #66756f;
-  font-size: 27rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -165,7 +167,7 @@ function openSetting(title) {
   min-height: 76rpx;
   border-radius: 8rpx;
   background: #e7f0eb;
-  color: #66756f;
+  color: #4a5c55;
   font-size: 29rpx;
   font-weight: 800;
   line-height: 1.2;
@@ -180,8 +182,8 @@ function openSetting(title) {
 .viewer-note {
   display: block;
   margin-top: 16rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .family-grid {
@@ -213,7 +215,7 @@ function openSetting(title) {
   border-radius: 999rpx;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 22rpx;
+  font-size: 30rpx;
   font-weight: 800;
   overflow: hidden;
   white-space: nowrap;
@@ -221,8 +223,8 @@ function openSetting(title) {
 }
 
 .age-text {
-  color: #66756f;
-  font-size: 23rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .person-name {
@@ -237,8 +239,8 @@ function openSetting(title) {
   display: block;
   min-height: 68rpx;
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.36;
 }
 
@@ -254,7 +256,7 @@ function openSetting(title) {
   border-radius: 999rpx;
   background: #fff1cf;
   color: #8a641c;
-  font-size: 21rpx;
+  font-size: 30rpx;
 }
 
 .settings-row {
@@ -274,6 +276,6 @@ function openSetting(title) {
 
 .settings-row text:last-child {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
 }
 </style>

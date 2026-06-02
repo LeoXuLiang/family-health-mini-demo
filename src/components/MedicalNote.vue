@@ -7,11 +7,11 @@
 <style scoped>
 .medical-note {
   margin: 18rpx 32rpx 28rpx;
-  padding: 18rpx 22rpx;
+  padding: 22rpx 26rpx;
   border-radius: 8rpx;
   background: #fff7e8;
   color: #76541c;
-  font-size: 24rpx;
+  font-size: 28rpx;
   line-height: 1.55;
 }
 </style>

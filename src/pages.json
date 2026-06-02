@@ -41,9 +41,9 @@
       }
     },
     {
-      "path": "pages/tools/breathing478",
+      "path": "pages/tools/breathing468",
       "style": {
-        "navigationBarTitleText": "4-7-8呼吸",
+        "navigationBarTitleText": "4-6-8 呼吸",
         "navigationBarBackgroundColor": "#eef5ef",
         "navigationBarTextStyle": "black"
       }
@@ -132,7 +132,7 @@
   },
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "家庭健康",
+    "navigationBarTitleText": "家康小记",
     "navigationBarBackgroundColor": "#eef5ef",
     "backgroundColor": "#eef5ef"
   }

@@ -78,6 +78,7 @@
 
     <MedicalNote />
     <OnboardingPanel />
+    <TabBar :active="2" />
   </view>
 </template>
 
@@ -87,6 +88,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
+import TabBar from "../../components/TabBar.vue";
 import { getMember, mealAnalyses } from "../../data/demoData";
 import { appState, visibleMembers } from "../../state/appState";
 import { analyzeMealImage } from "../../services/mockBackend";
@@ -151,8 +153,8 @@ function correctMeal() {
 
 .card-label {
   display: block;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .camera-card .card-label,
@@ -171,7 +173,7 @@ function correctMeal() {
 .camera-desc {
   display: block;
   margin-top: 12rpx;
-  font-size: 28rpx;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -217,8 +219,8 @@ function correctMeal() {
 .preview-desc {
   display: block;
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -253,7 +255,7 @@ function correctMeal() {
   justify-content: center;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 25rpx;
+  font-size: 30rpx;
   font-weight: 900;
 }
 
@@ -307,7 +309,7 @@ function correctMeal() {
 }
 
 .nutrition-item text:first-child {
-  font-size: 24rpx;
+  font-size: 30rpx;
 }
 
 .nutrition-item text:last-child {
@@ -336,8 +338,8 @@ function correctMeal() {
 
 .advice-text {
   margin-top: 10rpx;
-  color: #66756f;
-  font-size: 27rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.55;
 }
 
@@ -372,8 +374,8 @@ function correctMeal() {
 
 .meal-advice {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 </style>

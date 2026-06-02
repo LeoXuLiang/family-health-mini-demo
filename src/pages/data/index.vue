@@ -27,6 +27,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import { dataChecklist, getMember } from "../../data/demoData";
@@ -78,7 +79,7 @@ function resetDemo() {
 
 .label {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -92,8 +93,8 @@ function resetDemo() {
 .desc,
 .row-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -119,7 +120,7 @@ function resetDemo() {
   border-radius: 999rpx;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;

@@ -137,6 +137,7 @@
 
     <MedicalNote />
     <OnboardingPanel />
+    <TabBar :active="3" />
   </view>
 </template>
 
@@ -147,6 +148,7 @@ import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
+import TabBar from "../../components/TabBar.vue";
 import { getMember } from "../../data/demoData";
 import { appState, visibleMembers } from "../../state/appState";
 import { confirmMedication, createMedicationReminder, listMedicationTasks } from "../../services/mockBackend";
@@ -303,7 +305,7 @@ async function saveMedication() {
 
 .label {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -317,8 +319,8 @@ async function saveMedication() {
 
 .desc {
   margin-top: 10rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -340,13 +342,13 @@ async function saveMedication() {
 }
 
 .summary-count text:last-child {
-  font-size: 22rpx;
+  font-size: 30rpx;
 }
 
 .empty-card {
   padding: 28rpx;
-  color: #66756f;
-  font-size: 28rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -392,8 +394,8 @@ async function saveMedication() {
 
 .check-dosage {
   margin-top: 6rpx;
-  color: #66756f;
-  font-size: 24rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .check-status {
@@ -405,7 +407,7 @@ async function saveMedication() {
   border-radius: 999rpx;
   background: #fff1cf;
   color: #9a6d1d;
-  font-size: 23rpx;
+  font-size: 30rpx;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;
@@ -418,7 +420,7 @@ async function saveMedication() {
 
 .check-status.not_due {
   background: #e7f0eb;
-  color: #66756f;
+  color: #4a5c55;
 }
 
 .form-card {
@@ -441,8 +443,8 @@ async function saveMedication() {
 .field-label {
   display: block;
   margin-bottom: 10rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .form-field input,
@@ -458,7 +460,7 @@ async function saveMedication() {
   justify-content: space-between;
   background: #fbfdfc;
   color: #18332d;
-  font-size: 28rpx;
+  font-size: 30rpx;
 }
 
 .form-field textarea {
@@ -514,7 +516,7 @@ async function saveMedication() {
   border-radius: 999rpx;
   background: #fff1cf;
   color: #9a6d1d;
-  font-size: 24rpx;
+  font-size: 30rpx;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;
@@ -527,7 +529,7 @@ async function saveMedication() {
 
 .status-chip.not_due {
   background: #e7f0eb;
-  color: #66756f;
+  color: #4a5c55;
 }
 
 .detail-box {
@@ -535,8 +537,8 @@ async function saveMedication() {
   padding: 22rpx;
   border-radius: 8rpx;
   background: #f5faf7;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -566,7 +568,7 @@ async function saveMedication() {
 
 .confirm-button.disabled {
   background: #e7f0eb;
-  color: #66756f;
+  color: #4a5c55;
 }
 
 .compact-row {
@@ -587,8 +589,8 @@ async function saveMedication() {
 
 .compact-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .mini-chip {
@@ -596,7 +598,7 @@ async function saveMedication() {
   border-radius: 999rpx;
   background: #dff2ea;
   color: #2f8f72;
-  font-size: 23rpx;
+  font-size: 30rpx;
   font-weight: 900;
 }
 </style>

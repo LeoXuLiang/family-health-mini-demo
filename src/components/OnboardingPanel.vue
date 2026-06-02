@@ -78,15 +78,15 @@ function previewAsAdmin() {
 .desc,
 .field-label {
   display: block;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 28rpx;
 }
 
 .title {
   display: block;
   margin-top: 8rpx;
   color: #18332d;
-  font-size: 42rpx;
+  font-size: 44rpx;
   font-weight: 900;
   line-height: 1.24;
 }
@@ -105,14 +105,14 @@ function previewAsAdmin() {
   border-radius: 8rpx;
   background: #f5faf7;
   color: #38564e;
-  font-size: 26rpx;
-  line-height: 1.5;
+  font-size: 28rpx;
+  line-height: 1.55;
 }
 
 .picker-field {
   width: 100%;
   box-sizing: border-box;
-  min-height: 92rpx;
+  min-height: 96rpx;
   margin: 12rpx 0 24rpx;
   padding: 0 22rpx;
   border: 1rpx solid #dce8e2;
@@ -121,7 +121,7 @@ function previewAsAdmin() {
   align-items: center;
   justify-content: space-between;
   color: #18332d;
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 800;
 }
 
@@ -132,9 +132,9 @@ function previewAsAdmin() {
   justify-content: center;
   width: 100%;
   box-sizing: border-box;
-  min-height: 92rpx;
-  border-radius: 8rpx;
-  font-size: 32rpx;
+  min-height: 96rpx;
+  border-radius: 10rpx;
+  font-size: 34rpx;
   font-weight: 900;
   line-height: 1.2;
   text-align: center;

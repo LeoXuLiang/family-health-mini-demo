@@ -271,19 +271,19 @@ export const visitRecords = [];
 export const medicationLogs = [];
 
 export const dataChecklist = [
-  { key: "profile", title: "成员档案", status: "已建立家庭基础档案" },
-  { key: "metrics", title: "健康指标", status: "当前无预置记录" },
-  { key: "meals", title: "餐食照片", status: "当前无预置照片" },
-  { key: "visits", title: "就医用药", status: "当前无预置就医用药记录" },
-  { key: "privacy", title: "隐私授权", status: "可撤回授权" }
+  { key: "profile", title: "家人档案", status: "已建立6位家人基础档案" },
+  { key: "metrics", title: "健康指标", status: "有血压、血糖、体重等记录" },
+  { key: "meals", title: "餐食照片", status: "可拍照上传餐食" },
+  { key: "visits", title: "就医记录", status: "可记录就诊和用药" },
+  { key: "privacy", title: "隐私设置", status: "可随时撤回授权" }
 ];
 
 export const quickActions = [
-  { key: "bloodPressure", title: "记血压", subtitle: "早晚各一次", icon: "压", accent: "green" },
-  { key: "bloodGlucose", title: "记血糖", subtitle: "餐前或餐后", icon: "糖", accent: "blue" },
-  { key: "weight", title: "称体重", subtitle: "体重变化", icon: "重", accent: "coral" },
-  { key: "sleep", title: "记睡眠", subtitle: "选择睡眠状态", icon: "眠", accent: "mint" },
-  { key: "meal", title: "拍一餐", subtitle: "分析搭配", icon: "餐", accent: "gold" }
+  { key: "bloodPressure", title: "记血压", subtitle: "早晚各一次", icon: "🩺", accent: "green" },
+  { key: "bloodGlucose", title: "记血糖", subtitle: "餐前或餐后", icon: "🩸", accent: "blue" },
+  { key: "weight", title: "称体重", subtitle: "每周观察", icon: "⚖️", accent: "coral" },
+  { key: "sleep", title: "记睡眠", subtitle: "选择睡眠状态", icon: "🌙", accent: "mint" },
+  { key: "meal", title: "拍一餐", subtitle: "看营养搭配", icon: "📷", accent: "gold" }
 ];
 
 const memberIdSet = new Set(members.map((member) => member.id));

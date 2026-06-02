@@ -6,12 +6,12 @@
       <button class="breathing-card card" @click="openBreathing">
         <view class="tool-copy">
           <text class="tool-label">放松练习</text>
-          <text class="tool-title">4-7-8 呼吸法</text>
+          <text class="tool-title">4-6-8 呼吸法</text>
           <text class="tool-desc">跟随圆形节奏吸气、屏息、呼气，适合睡前或紧张时短时间练习。</text>
         </view>
         <view class="tool-orbit">
           <view class="tool-orb">
-            <text>478</text>
+            <text>468</text>
           </view>
         </view>
       </button>
@@ -33,20 +33,22 @@
         <text class="safety-desc">练习中如出现头晕、胸闷或明显不适，请立即停止。该工具仅用于放松练习，不替代诊断或治疗。</text>
       </view>
     </view>
+    <TabBar :active="4" />
   </view>
 </template>
 
 <script setup>
 import PageHeader from "../../components/PageHeader.vue";
+import TabBar from "../../components/TabBar.vue";
 
 const steps = [
   { count: "4", title: "吸气", desc: "鼻吸 4 秒，放慢动作" },
-  { count: "7", title: "屏息", desc: "轻轻停住 7 秒" },
+  { count: "6", title: "屏息", desc: "轻轻停住 6 秒" },
   { count: "8", title: "呼气", desc: "口呼 8 秒，慢慢放松" }
 ];
 
 function openBreathing() {
-  uni.navigateTo({ url: "/pages/tools/breathing478" });
+  uni.navigateTo({ url: "/pages/tools/breathing468" });
 }
 </script>
 
@@ -84,7 +86,7 @@ function openBreathing() {
 
 .tool-label {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 900;
 }
 
@@ -98,8 +100,8 @@ function openBreathing() {
 
 .tool-desc {
   margin-top: 16rpx;
-  color: #66756f;
-  font-size: 28rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 
@@ -161,8 +163,8 @@ function openBreathing() {
 
 .step-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 24rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.4;
 }
 
@@ -181,7 +183,7 @@ function openBreathing() {
 .safety-desc {
   margin-top: 10rpx;
   color: #76541c;
-  font-size: 26rpx;
+  font-size: 30rpx;
   line-height: 1.5;
 }
 </style>

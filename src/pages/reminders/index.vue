@@ -41,6 +41,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import { getMember, reminderPlans } from "../../data/demoData";
@@ -97,7 +98,7 @@ function receiverNames(remindTo) {
 
 .label {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -111,8 +112,8 @@ function receiverNames(remindTo) {
 .desc,
 .reminder-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
@@ -139,7 +140,7 @@ function receiverNames(remindTo) {
   display: block;
   margin-top: 8rpx;
   color: #18332d;
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -147,7 +148,7 @@ function receiverNames(remindTo) {
   display: block;
   margin-top: 8rpx;
   color: #9a6d1d;
-  font-size: 24rpx;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 </style>

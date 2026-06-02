@@ -78,6 +78,47 @@
       </view>
 
       <view class="section-title">
+        <text class="section-title-text">个人标签</text>
+      </view>
+
+      <view class="form-card card">
+        <view class="tags-display">
+          <view
+            v-for="(tag, i) in profile.tags"
+            :key="i"
+            class="tag-chip"
+            @click="removeTag(i)"
+          >
+            <text>{{ tag }}</text>
+            <text class="tag-remove">×</text>
+          </view>
+          <text v-if="profile.tags.length === 0" class="tag-empty">暂无标签，可从下方选择或自定义添加</text>
+        </view>
+
+        <text class="label" style="margin-top: 20rpx;">常用标签</text>
+        <view class="tag-presets">
+          <button
+            v-for="preset in availablePresets"
+            :key="preset"
+            class="tag-preset-btn"
+            @click="addTag(preset)"
+          >
+            {{ preset }}
+          </button>
+        </view>
+
+        <view class="tag-custom-row">
+          <input
+            v-model="tagInput"
+            class="tag-input"
+            placeholder="输入自定义标签"
+            @confirm="addCustomTag"
+          />
+          <button class="tag-add-btn" @click="addCustomTag">添加</button>
+        </view>
+      </view>
+
+      <view class="section-title">
         <text class="section-title-text">健康基准</text>
       </view>
 
@@ -174,7 +215,10 @@
         <text class="note">可点击“管理”进入就医用药页维护复诊、检查和用药记录。</text>
       </view>
 
-      <button class="primary-button save-button" @click="saveProfile">保存档案</button>
+      <view class="save-row">
+        <button class="secondary-button" @click="goBack">取消</button>
+        <button class="primary-button" @click="saveProfile">保存档案</button>
+      </view>
     </view>
 
     <MedicalNote />
@@ -182,7 +226,7 @@
 </template>
 
 <script setup>
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
@@ -191,8 +235,15 @@ import { getMember, visitRecords } from "../../data/demoData";
 const genderOptions = ["男", "女", "其他"];
 const bloodTypeOptions = ["待补充", "A", "B", "AB", "O"];
 
+const allTagPresets = [
+  "血压关注", "血糖关注", "体重管理", "低盐饮食", "控糖饮食",
+  "睡眠关注", "久坐提醒", "补钙", "运动恢复", "餐后记录",
+  "低脂饮食", "高纤维", "少食多餐", "戒烟", "限酒"
+];
+
 const profile = reactive(createProfile(getMember("me")));
 let memberId = "me";
+const tagInput = ref("");
 
 onLoad((query) => {
   memberId = query.id || "me";
@@ -203,6 +254,7 @@ const member = computed(() => getMember(memberId));
 const genderIndex = computed(() => Math.max(genderOptions.indexOf(profile.gender), 0));
 const bloodTypeIndex = computed(() => Math.max(bloodTypeOptions.indexOf(profile.bloodType || "待补充"), 0));
 const memberVisits = computed(() => visitRecords.filter((record) => record.memberId === memberId));
+const availablePresets = computed(() => allTagPresets.filter((tag) => !profile.tags.includes(tag)));
 
 const bmiValue = computed(() => {
   const height = Number(profile.heightCm);
@@ -245,8 +297,29 @@ function createProfile(source) {
     medicationNote: source.medicationNote || "",
     emergencyName: source.emergencyContact?.name || "",
     emergencyRelation: source.emergencyContact?.relation || "",
-    emergencyPhone: source.emergencyContact?.phone || ""
+    emergencyPhone: source.emergencyContact?.phone || "",
+    tags: [...(source.tags || [])]
   };
+}
+
+function addTag(tag) {
+  if (!tag || profile.tags.includes(tag)) return;
+  profile.tags.push(tag);
+}
+
+function removeTag(index) {
+  profile.tags.splice(index, 1);
+}
+
+function addCustomTag() {
+  const val = tagInput.value.trim();
+  if (!val) return;
+  if (profile.tags.includes(val)) {
+    uni.showToast({ title: "标签已存在", icon: "none" });
+    return;
+  }
+  profile.tags.push(val);
+  tagInput.value = "";
 }
 
 function listToText(list) {
@@ -305,10 +378,15 @@ function saveProfile() {
       name: profile.emergencyName,
       relation: profile.emergencyRelation,
       phone: profile.emergencyPhone
-    }
+    },
+    tags: [...profile.tags]
   });
 
   uni.showToast({ title: "档案已保存", icon: "success" });
+}
+
+function goBack() {
+  uni.navigateBack();
 }
 
 function goCare() {
@@ -340,7 +418,7 @@ function goCare() {
 
 .role {
   color: #2f8f72;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 800;
 }
 
@@ -353,15 +431,15 @@ function goCare() {
 
 .scope {
   margin-top: 10rpx;
-  color: #66756f;
-  font-size: 27rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
 .basic {
   min-width: 176rpx;
-  color: #66756f;
-  font-size: 27rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.6;
   text-align: right;
 }
@@ -416,8 +494,8 @@ function goCare() {
 }
 
 .label {
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .value {
@@ -431,7 +509,7 @@ function goCare() {
 .note {
   margin-top: 8rpx;
   color: #9a6d1d;
-  font-size: 24rpx;
+  font-size: 30rpx;
   line-height: 1.4;
 }
 
@@ -459,8 +537,8 @@ function goCare() {
 .baseline-title text:last-child {
   display: block;
   margin-top: 6rpx;
-  color: #66756f;
-  font-size: 25rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
 }
 
 .visit-list {
@@ -477,12 +555,92 @@ function goCare() {
 
 .visit-desc {
   margin-top: 8rpx;
-  color: #66756f;
-  font-size: 26rpx;
+  color: #4a5c55;
+  font-size: 30rpx;
   line-height: 1.45;
 }
 
-.save-button {
+.save-row {
+  display: grid;
+  grid-template-columns: 0.7fr 1.3fr;
+  gap: 16rpx;
   margin-top: 24rpx;
+}
+
+.tags-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: #fff1cf;
+  color: #8a641c;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.tag-remove {
+  font-size: 32rpx;
+  font-weight: 900;
+  color: #b98926;
+  margin-left: 2rpx;
+}
+
+.tag-empty {
+  color: #4a5c55;
+  font-size: 30rpx;
+}
+
+.tag-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.tag-preset-btn {
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: #e7f0eb;
+  color: #2b5d50;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tag-custom-row {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #dce8e2;
+  border-radius: 8rpx;
+  background: #fbfdfc;
+  font-size: 30rpx;
+}
+
+.tag-add-btn {
+  flex: 0 0 auto;
+  padding: 0 28rpx;
+  height: 72rpx;
+  border-radius: 8rpx;
+  background: #2f8f72;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1.2;
 }
 </style>

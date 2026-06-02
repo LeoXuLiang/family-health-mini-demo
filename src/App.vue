@@ -35,4 +35,19 @@ button {
 button::after {
   border: 0;
 }
+
+/* #ifdef H5 */
+.uni-tabbar,
+.uni-tabbar__item,
+.uni-tabbar__bd,
+.uni-tabbar-bottom {
+  height: 58px !important;
+}
+
+.uni-tabbar__label {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 58px !important;
+}
+/* #endif */
 </style>

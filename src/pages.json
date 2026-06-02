@@ -33,6 +33,22 @@
       }
     },
     {
+      "path": "pages/tools/index",
+      "style": {
+        "navigationBarTitleText": "工具",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
+      "path": "pages/tools/breathing478",
+      "style": {
+        "navigationBarTitleText": "4-7-8呼吸",
+        "navigationBarBackgroundColor": "#eef5ef",
+        "navigationBarTextStyle": "black"
+      }
+    },
+    {
       "path": "pages/family/index",
       "style": {
         "navigationBarTitleText": "家庭",
@@ -103,6 +119,10 @@
       {
         "pagePath": "pages/medications/index",
         "text": "用药"
+      },
+      {
+        "pagePath": "pages/tools/index",
+        "text": "工具"
       },
       {
         "pagePath": "pages/family/index",

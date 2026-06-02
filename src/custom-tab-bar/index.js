@@ -3,6 +3,7 @@ const tabList = [
   { pagePath: "/pages/records/index", text: "记录" },
   { pagePath: "/pages/meals/index", text: "饮食" },
   { pagePath: "/pages/medications/index", text: "用药" },
+  { pagePath: "/pages/tools/index", text: "工具" },
   { pagePath: "/pages/family/index", text: "家庭" }
 ];
 

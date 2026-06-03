@@ -164,12 +164,12 @@ async function loadTodayData() {
     const metrics = new Set(memberRecords.map((r) => r.metric));
     const completion = Math.min(Math.round((metrics.size / 5) * 100), 100);
     const latest = memberRecords.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-    const status = completion < 40 ? "待记录" : completion < 80 ? "记录中" : "记录良好";
+    const status = completion >= 80 ? "记录良好" : "已记录";
     summaries[member.id] = {
       completion,
       status,
       primary: latest.value,
-      secondary: `${metrics.size} 项指标已记录`,
+      secondary: `已记录 ${metrics.size} 项指标`,
       trend: [0, 0, 0, 0, 0, 0, 0]
     };
   }

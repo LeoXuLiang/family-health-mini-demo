@@ -1,4 +1,6 @@
 <script>
+const INIT_FLAG = "cloud_collections_ready";
+
 export default {
   onLaunch() {
     console.log("家康小记 启动");
@@ -8,8 +10,35 @@ export default {
         traceUser: true
       });
       console.log("云开发已初始化");
+      this.initCollections();
     } catch (error) {
       console.warn("云开发初始化失败，使用本地存储降级", error);
+    }
+  },
+  methods: {
+    async initCollections() {
+      try {
+        if (wx.getStorageSync(INIT_FLAG)) return;
+
+        const db = wx.cloud.database();
+        const names = ["health_records", "medications", "care_records"];
+
+        for (const name of names) {
+          try {
+            const res = await db.collection(name).add({
+              data: { _init: true }
+            });
+            await db.collection(name).doc(res._id).remove();
+            console.log(`[cloud] collection ${name} ready`);
+          } catch (e) {
+            console.warn(`[cloud] init ${name}:`, e.errMsg || e.message);
+          }
+        }
+
+        wx.setStorageSync(INIT_FLAG, true);
+      } catch (e) {
+        console.warn("[cloud] initCollections error:", e);
+      }
     }
   }
 };

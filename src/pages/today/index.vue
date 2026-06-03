@@ -84,20 +84,21 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
-import { canReceiveReminder, getMember, quickActions, reminders, todaySummaries } from "../../data/demoData";
+import { canReceiveReminder, getMember, quickActions, reminders } from "../../data/demoData";
 import { appState, setPendingMetric, visibleMembers } from "../../state/appState";
-import { listMedicationTasks } from "../../services/cloudService";
+import { listMedicationTasks, listMetricRecords } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
-const summaries = todaySummaries;
+const summaries = reactive({});
 
-const selectedSummary = computed(() => summaries[selectedMemberId.value] || summaries.me);
+const selectedSummary = computed(() => summaries[selectedMemberId.value] || defaultSummary());
 const selectedMember = computed(() => visibleMembers.value.find((member) => member.id === selectedMemberId.value));
 const availableReminders = computed(() => reminders.filter((reminder) => canReceiveReminder(appState.viewerId, reminder)));
 
@@ -123,6 +124,42 @@ const heroDesc = computed(() => {
   }
   return `${selectedSummary.value.primary}，${selectedSummary.value.secondary}。`;
 });
+
+function defaultSummary() {
+  return { completion: 0, status: "待记录", primary: "今日暂无记录", secondary: "可先记录体重或睡眠", trend: [0, 0, 0, 0, 0, 0, 0] };
+}
+
+function isToday(isoStr) {
+  if (!isoStr) return false;
+  return new Date(isoStr).toDateString() === new Date().toDateString();
+}
+
+async function loadTodayData() {
+  const records = await listMetricRecords(appState.viewerId);
+  const todayRecords = records.filter((r) => isToday(r.createdAt));
+  const allMembers = visibleMembers.value;
+
+  for (const member of allMembers) {
+    const memberRecords = todayRecords.filter((r) => r.memberId === member.id);
+    if (memberRecords.length === 0) {
+      summaries[member.id] = { ...defaultSummary() };
+      continue;
+    }
+    const metrics = new Set(memberRecords.map((r) => r.metric));
+    const completion = Math.min(Math.round((metrics.size / 5) * 100), 100);
+    const latest = memberRecords.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
+    const status = completion < 40 ? "待记录" : completion < 80 ? "记录中" : "记录良好";
+    summaries[member.id] = {
+      completion,
+      status,
+      primary: latest.value,
+      secondary: `${metrics.size} 项指标已记录`,
+      trend: [0, 0, 0, 0, 0, 0, 0]
+    };
+  }
+}
+
+onShow(loadTodayData);
 
 const filteredReminders = computed(() => {
   if (selectedMemberId.value === "me") {

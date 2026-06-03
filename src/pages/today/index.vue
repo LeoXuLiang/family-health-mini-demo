@@ -175,6 +175,10 @@ async function loadTodayData() {
   }
 }
 
+// 先用默认值填充，避免模板渲染时 summaries[member.id] 为 undefined
+for (const m of visibleMembers.value) {
+  summaries[m.id] = defaultSummary();
+}
 onShow(loadTodayData);
 
 const filteredReminders = computed(() => {

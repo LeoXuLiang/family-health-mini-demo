@@ -37,6 +37,34 @@ function ensureCanOperate(viewerId, memberId) {
   }
 }
 
+function isCollectionNotExist(err) {
+  return err && (err.errCode === -502005 || String(err.message || err.errMsg || "").includes("collection not exists"));
+}
+
+async function safeQuery(collName, fn) {
+  try {
+    return await fn();
+  } catch (err) {
+    if (isCollectionNotExist(err)) {
+      console.warn(`[cloud] collection ${collName} not exist, return empty`);
+      return { data: [] };
+    }
+    throw err;
+  }
+}
+
+async function safeGet(collName, fn) {
+  try {
+    return await fn();
+  } catch (err) {
+    if (isCollectionNotExist(err)) {
+      console.warn(`[cloud] collection ${collName} not exist, return null`);
+      return { data: null };
+    }
+    throw err;
+  }
+}
+
 // ============ Health Records ============
 
 export async function saveMetricRecord(viewerId, record) {
@@ -64,11 +92,13 @@ export async function listMetricRecords(viewerId) {
   const visibleIds = getVisibleMembers(viewerId).map((m) => m.id);
   if (visibleIds.length === 0) return [];
 
-  const result = await coll("health_records")
-    .where({ memberId: db().command.in(visibleIds) })
-    .orderBy("createdAt", "desc")
-    .limit(20)
-    .get();
+  const result = await safeQuery("health_records", () =>
+    coll("health_records")
+      .where({ memberId: db().command.in(visibleIds) })
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get()
+  );
 
   return result.data.map((doc) => ({ ...doc, id: doc._id }));
 }
@@ -120,7 +150,9 @@ export async function listMedicationTasks(viewerId, memberId = "") {
     query = coll("medications").where({ memberId, enabled: true });
   }
 
-  const result = await query.orderBy("time", "asc").limit(50).get();
+  const result = await safeQuery("medications", () =>
+    query.orderBy("time", "asc").limit(50).get()
+  );
 
   return result.data
     .map((doc) => ({ ...doc, id: doc._id }))
@@ -134,7 +166,9 @@ export async function listMedicationTasks(viewerId, memberId = "") {
 export async function confirmMedication(viewerId, medicationId) {
   if (!cloudReady()) return fallback.confirmMedication(viewerId, medicationId);
 
-  const result = await coll("medications").doc(medicationId).get();
+  const result = await safeGet("medications", () =>
+    coll("medications").doc(medicationId).get()
+  );
   const task = result.data;
   if (!task) throw new Error("未找到用药提醒");
 
@@ -187,11 +221,13 @@ export async function listCareRecords(viewerId, memberId) {
 
   ensureCanView(viewerId, memberId);
 
-  const result = await coll("care_records")
-    .where({ memberId })
-    .orderBy("createdAt", "desc")
-    .limit(20)
-    .get();
+  const result = await safeQuery("care_records", () =>
+    coll("care_records")
+      .where({ memberId })
+      .orderBy("createdAt", "desc")
+      .limit(20)
+      .get()
+  );
 
   return {
     visits: result.data.map((doc) => ({ ...doc, id: doc._id })),

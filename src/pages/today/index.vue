@@ -129,16 +129,32 @@ function defaultSummary() {
   return { completion: 0, status: "待记录", primary: "今日暂无记录", secondary: "可先记录体重或睡眠", trend: [0, 0, 0, 0, 0, 0, 0] };
 }
 
+function localDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 function isToday(isoStr) {
   if (!isoStr) return false;
-  return new Date(isoStr).toDateString() === new Date().toDateString();
+  return localDateStr(new Date(isoStr)) === localDateStr(new Date());
 }
 
 async function loadTodayData() {
   const records = await listMetricRecords(appState.viewerId);
-  const todayRecords = records.filter((r) => isToday(r.createdAt));
-  const allMembers = visibleMembers.value;
+  console.log("[today] loaded", records.length, "records from cloud");
+  const todayStr = localDateStr(new Date());
+  console.log("[today] local date:", todayStr);
 
+  const todayRecords = records.filter((r) => {
+    const recordDate = localDateStr(new Date(r.createdAt));
+    console.log("[today] record", r.metric, r.createdAt, "→", recordDate);
+    return recordDate === todayStr;
+  });
+  console.log("[today] todayRecords:", todayRecords.length);
+
+  const allMembers = visibleMembers.value;
   for (const member of allMembers) {
     const memberRecords = todayRecords.filter((r) => r.memberId === member.id);
     if (memberRecords.length === 0) {

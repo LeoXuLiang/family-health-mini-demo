@@ -141,24 +141,26 @@ function isToday(isoStr) {
   return localDateStr(new Date(isoStr)) === localDateStr(new Date());
 }
 
+function computeLast7Days(records, memberId) {
+  const trend = [0, 0, 0, 0, 0, 0, 0];
+  const today = new Date();
+  for (const r of records) {
+    if (r.memberId !== memberId) continue;
+    const diff = Math.floor((today - new Date(r.createdAt)) / 86400000);
+    if (diff >= 0 && diff < 7) trend[6 - diff]++;
+  }
+  return trend;
+}
+
 async function loadTodayData() {
   const records = await listMetricRecords(appState.viewerId);
-  console.log("[today] loaded", records.length, "records from cloud");
   const todayStr = localDateStr(new Date());
-  console.log("[today] local date:", todayStr);
+  const todayRecords = records.filter((r) => localDateStr(new Date(r.createdAt)) === todayStr);
 
-  const todayRecords = records.filter((r) => {
-    const recordDate = localDateStr(new Date(r.createdAt));
-    console.log("[today] record", r.metric, r.createdAt, "→", recordDate);
-    return recordDate === todayStr;
-  });
-  console.log("[today] todayRecords:", todayRecords.length);
-
-  const allMembers = visibleMembers.value;
-  for (const member of allMembers) {
+  for (const member of visibleMembers.value) {
     const memberRecords = todayRecords.filter((r) => r.memberId === member.id);
     if (memberRecords.length === 0) {
-      summaries[member.id] = { ...defaultSummary() };
+      summaries[member.id] = { ...defaultSummary(), trend: computeLast7Days(records, member.id) };
       continue;
     }
     const metrics = new Set(memberRecords.map((r) => r.metric));
@@ -170,7 +172,7 @@ async function loadTodayData() {
       status,
       primary: latest.value,
       secondary: `已记录 ${metrics.size} 项指标`,
-      trend: [0, 0, 0, 0, 0, 0, 0]
+      trend: computeLast7Days(records, member.id)
     };
   }
 }

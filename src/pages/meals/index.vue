@@ -84,18 +84,21 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
-import { getMember, mealAnalyses } from "../../data/demoData";
+import { getMember } from "../../data/demoData";
 import { appState, visibleMembers } from "../../state/appState";
-import { analyzeMealImage } from "../../services/cloudService";
+import { uploadMealPhoto, saveMealRecord, listMealRecords } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const mealImage = ref("");
+const mealRecords = ref([]);
 const analysisOverride = ref(null);
+
 const fallbackAnalysis = computed(() => ({
   id: "empty-meal",
   memberId: selectedMemberId.value,
@@ -111,19 +114,39 @@ const fallbackAnalysis = computed(() => ({
 }));
 
 const selectedMember = computed(() => getMember(selectedMemberId.value));
-const memberMeals = computed(() => mealAnalyses.filter((meal) => meal.memberId === selectedMemberId.value));
-
+const memberMeals = computed(() => mealRecords.value.filter((meal) => meal.memberId === selectedMemberId.value));
 const activeAnalysis = computed(() => analysisOverride.value || memberMeals.value[0] || fallbackAnalysis.value);
 
-function chooseMealImage() {
+async function loadMeals() {
+  mealRecords.value = await listMealRecords(appState.viewerId, selectedMemberId.value);
+}
+
+onShow(loadMeals);
+
+async function chooseMealImage() {
   uni.chooseImage({
     count: 1,
     sizeType: ["compressed"],
     sourceType: ["album", "camera"],
     async success(result) {
-      mealImage.value = result.tempFilePaths[0];
-      analysisOverride.value = await analyzeMealImage(appState.viewerId, selectedMemberId.value);
-      uni.showToast({ title: "已生成模拟分析", icon: "none" });
+      const tempPath = result.tempFilePaths[0];
+      mealImage.value = tempPath;
+      uni.showLoading({ title: "上传中..." });
+
+      try {
+        const fileID = await uploadMealPhoto(tempPath);
+        const meal = await saveMealRecord(appState.viewerId, {
+          memberId: selectedMemberId.value,
+          photoFileID: fileID
+        });
+        analysisOverride.value = meal;
+        mealRecords.value.unshift(meal);
+        uni.hideLoading();
+        uni.showToast({ title: "照片已保存", icon: "success" });
+      } catch (e) {
+        uni.hideLoading();
+        uni.showToast({ title: "上传失败，请重试", icon: "none" });
+      }
     }
   });
 }
@@ -131,7 +154,7 @@ function chooseMealImage() {
 function correctMeal() {
   uni.showModal({
     title: "修正入口",
-    content: "正式版会支持手动增删菜品、修改份量和餐次。",
+    content: "可补充菜品名称和份量，AI 识别功能需接入腾讯云图像分析服务后启用。",
     showCancel: false
   });
 }

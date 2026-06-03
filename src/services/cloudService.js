@@ -236,6 +236,54 @@ export async function listCareRecords(viewerId, memberId) {
   };
 }
 
+// ============ Meals ============
+
+export async function uploadMealPhoto(tempFilePath) {
+  if (!cloudReady()) return "";
+  const result = await wx.cloud.uploadFile({
+    cloudPath: `meals/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`,
+    filePath: tempFilePath
+  });
+  return result.fileID;
+}
+
+export async function saveMealRecord(viewerId, payload) {
+  if (!cloudReady()) return fallback.analyzeMealImage(viewerId, payload.memberId);
+
+  const doc = {
+    memberId: payload.memberId,
+    mealType: payload.mealType || "本餐",
+    photoFileID: payload.photoFileID || "",
+    score: "--",
+    title: payload.title || "待分析（手动补全）",
+    macros: payload.macros || [
+      { label: "碳水", value: "待补充", accent: "blue" },
+      { label: "蛋白", value: "待补充", accent: "green" },
+      { label: "蔬菜", value: "待补充", accent: "gold" }
+    ],
+    advice: payload.advice || "照片已保存，请点击「修正」补充菜品和份量。",
+    createdBy: viewerId,
+    createdAt: new Date().toISOString()
+  };
+
+  const result = await coll("meals").add({ data: doc });
+  return { ...doc, _id: result._id, id: result._id };
+}
+
+export async function listMealRecords(viewerId, memberId) {
+  if (!cloudReady()) return [];
+
+  const result = await safeQuery("meals", () =>
+    coll("meals")
+      .where({ memberId })
+      .orderBy("createdAt", "desc")
+      .limit(10)
+      .get()
+  );
+
+  return result.data.map((doc) => ({ ...doc, id: doc._id }));
+}
+
 // ============ Pass-through (non-cloud) ============
 
 export { loginWithWechat, bindMember, listVisibleMembers, analyzeMealImage, requestDataDeletion } from "./mockBackend";

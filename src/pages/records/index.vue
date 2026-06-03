@@ -67,10 +67,18 @@
         </label>
 
         <view class="voice-row">
-          <button class="voice-button" :class="{ active: isRecording }" @click="toggleVoiceInput">
-            {{ isRecording ? "正在听..." : "语音录入备注" }}
+          <button
+            class="voice-button"
+            :class="{ active: voiceState === 'recording', done: voiceState === 'stopped' }"
+            @click="handleVoiceButton"
+          >
+            <text v-if="voiceState === 'idle'">语音录入备注</text>
+            <text v-else-if="voiceState === 'recording'">录音中 {{ recordingDuration }}s</text>
+            <text v-else>播放录音</text>
           </button>
-          <text>老人可直接说：“昨晚醒了一次”或“今天饭后测的”。</text>
+          <text v-if="voiceState === 'idle'">点击录音，说完后再点一次停止</text>
+          <text v-else-if="voiceState === 'recording'">正在录制，点击停止</text>
+          <text v-else>录音完成，点击播放</text>
         </view>
 
         <textarea
@@ -126,7 +134,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MemberSelector from "../../components/MemberSelector.vue";
@@ -254,19 +262,63 @@ async function saveRecord() {
   uni.showToast({ title: `已保存${selectedMember.value.name}的${metric.label}`, icon: "success" });
 }
 
-function toggleVoiceInput() {
-  isRecording.value = true;
-  uni.showToast({ title: "正在模拟语音转文字", icon: "none" });
+const recordingDuration = ref(0);
+const voiceFilePath = ref("");
+let recorderManager = null;
+let audioContext = null;
+let durationTimer = null;
 
-  setTimeout(() => {
-    const voiceText =
-      selectedMetric.value.key === "sleep"
-        ? "语音备注：昨晚中间醒了一次，早上精神还可以。"
-        : `语音备注：刚刚给${selectedMember.value.name}记录${selectedMetric.value.label}，状态正常。`;
-    note.value = note.value ? `${note.value}\n${voiceText}` : voiceText;
-    isRecording.value = false;
-  }, 700);
+function getRecorderManager() {
+  if (!recorderManager) {
+    recorderManager = wx.getRecorderManager();
+    recorderManager.onStop((res) => {
+      voiceFilePath.value = res.tempFilePath;
+      voiceState.value = "stopped";
+      if (durationTimer) clearInterval(durationTimer);
+      uni.showToast({ title: "录音完成", icon: "success" });
+    });
+    recorderManager.onError(() => {
+      voiceState.value = "idle";
+      if (durationTimer) clearInterval(durationTimer);
+      uni.showToast({ title: "录音失败，请重试", icon: "none" });
+    });
+  }
+  return recorderManager;
 }
+
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = wx.createInnerAudioContext();
+    audioContext.onEnded(() => {
+      uni.showToast({ title: "播放完毕", icon: "none" });
+    });
+  }
+  return audioContext;
+}
+
+function handleVoiceButton() {
+  const rm = getRecorderManager();
+
+  if (voiceState.value === "idle") {
+    voiceState.value = "recording";
+    recordingDuration.value = 0;
+    rm.start({ duration: 60000, format: "mp3" });
+    durationTimer = setInterval(() => recordingDuration.value++, 1000);
+  } else if (voiceState.value === "recording") {
+    rm.stop();
+  } else if (voiceState.value === "stopped") {
+    const ac = getAudioContext();
+    ac.src = voiceFilePath.value;
+    ac.play();
+    uni.showToast({ title: "正在播放", icon: "none" });
+  }
+}
+
+// Cleanup
+onUnmounted(() => {
+  if (durationTimer) clearInterval(durationTimer);
+  if (audioContext) audioContext.destroy();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -473,7 +525,12 @@ function toggleVoiceInput() {
 }
 
 .voice-button.active {
-  background: #2f8f72;
+  background: #d96a55;
+  color: #ffffff;
+}
+
+.voice-button.done {
+  background: #3a73c9;
   color: #ffffff;
 }
 

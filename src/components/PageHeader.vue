@@ -4,7 +4,7 @@
       <text class="eyebrow">{{ eyebrow }}</text>
       <text class="title">{{ title }}</text>
     </view>
-    <button v-if="showAction" class="header-action" @click="$emit('action')">{{ actionText }}</button>
+    <button v-if="showAction" class="header-action" @click="handleAction">{{ actionText }}</button>
   </view>
 </template>
 
@@ -28,7 +28,11 @@ defineProps({
   }
 });
 
-defineEmits(["action"]);
+const emit = defineEmits(["action"]);
+
+function handleAction() {
+  emit("action");
+}
 </script>
 
 <style scoped>

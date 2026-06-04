@@ -4,8 +4,35 @@
     <MemberSelector v-model="selectedMemberId" :visible-members="visibleMembers" />
 
     <view class="content">
+      <view v-if="!recordingStarted" class="record-hero card">
+        <view>
+          <text class="card-label">今日记录</text>
+          <text class="hero-title">{{ selectedMember.name }}已记录 {{ todayMetricCount }} 项</text>
+          <text class="hero-desc">{{ recordHeroDesc }}</text>
+        </view>
+        <button class="hero-action" @click="startRecord">新增记录</button>
+      </view>
+
+      <view v-if="!recordingStarted" class="quick-record-grid">
+        <button
+          v-for="(metric, index) in metricTypes"
+          :key="metric.key"
+          class="quick-record card"
+          @click="setMetricByIndex(index)"
+        >
+          <text class="quick-title">{{ metric.label }}</text>
+          <text class="quick-desc">立即记录</text>
+        </button>
+      </view>
+
       <view v-if="recordingStarted" class="metric-chooser card">
-        <text class="card-label">选择记录项目</text>
+        <view class="form-head">
+          <view>
+            <text class="card-label">新增记录</text>
+            <text class="form-title">{{ selectedMember.name }}的{{ selectedMetric.label }}</text>
+          </view>
+          <button class="close-form" @click="cancelRecord">收起</button>
+        </view>
         <view class="metric-grid">
           <button
             v-for="(metric, index) in metricTypes"
@@ -102,9 +129,9 @@
       </view>
 
       <view class="trend-card card">
-        <TrendBars :values="selectedSummary.trend" />
+        <TrendBars :values="trendValues" />
         <text class="trend-desc">
-          {{ selectedMember.name }}近 {{ period }} 天{{ selectedMetric.label }}记录整体{{ selectedSummary.status }}。
+          {{ selectedMember.name }}近 {{ period }} 天{{ selectedMetric.label }}{{ trendStatus }}。
         </text>
       </view>
 
@@ -145,11 +172,10 @@ import TrendBars from "../../components/TrendBars.vue";
 import {
   getMember,
   metricTypes,
-  sleepOptions,
-  todaySummaries
+  sleepOptions
 } from "../../data/demoData";
-import { appState, consumePendingMetric, visibleMembers } from "../../state/appState";
-import { saveMetricRecord, listMetricRecords } from "../../services/cloudService";
+import { appState, consumePendingMetric } from "../../state/appState";
+import { saveMetricRecord, listMetricRecords, listMembers } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const selectedMetricIndex = ref(0);
@@ -161,12 +187,33 @@ const note = ref("");
 const isRecording = ref(false);
 const period = ref(7);
 const savedRecords = ref([]);
+const visibleMembers = ref([]);
 const recordingStarted = ref(false);
 
 const metricLabels = metricTypes.map((metric) => metric.label);
 const selectedMetric = computed(() => metricTypes[selectedMetricIndex.value] || metricTypes[0]);
-const selectedMember = computed(() => getMember(selectedMemberId.value));
-const selectedSummary = computed(() => todaySummaries[selectedMemberId.value] || todaySummaries.me);
+const selectedMember = computed(() => visibleMembers.value.find((member) => member.id === selectedMemberId.value) || getMember(selectedMemberId.value));
+const trendValues = computed(() => computeTrendValues(savedRecords.value, selectedMemberId.value, selectedMetric.value.label, period.value));
+const trendStatus = computed(() => {
+  const total = trendValues.value.reduce((sum, value) => sum + value, 0);
+  if (total === 0) return "暂无走势";
+  return `已有 ${total} 次记录`;
+});
+const todayMemberRecords = computed(() => {
+  const today = localDateStr(new Date());
+  return savedRecords.value.filter((record) => {
+    if (record.memberId !== selectedMemberId.value || !record.createdAt) return false;
+    return localDateStr(new Date(record.createdAt)) === today;
+  });
+});
+const todayMetricCount = computed(() => new Set(todayMemberRecords.value.map((record) => record.metric)).size);
+const recordHeroDesc = computed(() => {
+  if (todayMetricCount.value === 0) {
+    return "选择一个项目开始记录，保存后会回到这里查看趋势。";
+  }
+  const latest = todayMemberRecords.value[0];
+  return `最近保存：${latest.metric} ${latest.value}`;
+});
 
 const visibleRecords = computed(() => {
   const visibleIds = new Set(visibleMembers.value.map((member) => member.id));
@@ -178,7 +225,7 @@ function changeMetric(event) {
 }
 
 function startRecord() {
-  recordingStarted.value = true;
+  setMetricByIndex(selectedMetricIndex.value);
 }
 
 function setMetricByIndex(index) {
@@ -191,7 +238,25 @@ function setMetricByIndex(index) {
   }
 }
 
+function resetRecordForm() {
+  const metric = selectedMetric.value;
+  systolic.value = "128";
+  diastolic.value = "78";
+  metricValue.value = metric.defaultValue || "";
+  sleepStatus.value = metric.key === "sleep" ? metric.defaultValue : "睡得好";
+  note.value = "";
+  voiceState.value = "idle";
+  recordingDuration.value = 0;
+  voiceFilePath.value = "";
+}
+
+function cancelRecord() {
+  recordingStarted.value = false;
+  resetRecordForm();
+}
+
 onShow(async () => {
+  await loadMembers();
   await loadRecords();
 
   const pendingMetricKey = consumePendingMetric();
@@ -207,6 +272,34 @@ onShow(async () => {
 
 async function loadRecords() {
   savedRecords.value = await listMetricRecords(appState.viewerId);
+}
+
+async function loadMembers() {
+  visibleMembers.value = await listMembers(appState.viewerId);
+  if (!visibleMembers.value.some((member) => member.id === selectedMemberId.value)) {
+    selectedMemberId.value = visibleMembers.value[0]?.id || appState.viewerId || "me";
+  }
+}
+
+function localDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function computeTrendValues(records, memberId, metricLabel, days) {
+  const counts = Array.from({ length: days }, () => 0);
+  const today = new Date(localDateStr(new Date()));
+
+  for (const record of records) {
+    if (record.memberId !== memberId || record.metric !== metricLabel || !record.createdAt) continue;
+    const recordDay = new Date(localDateStr(new Date(record.createdAt)));
+    const diff = Math.floor((today - recordDay) / 86400000);
+    if (diff >= 0 && diff < days) counts[days - 1 - diff] += 1;
+  }
+
+  return counts;
 }
 
 async function saveRecord() {
@@ -260,15 +353,22 @@ async function saveRecord() {
   savedRecords.value.unshift(savedRecord);
 
   uni.showToast({ title: `已保存${selectedMember.value.name}的${metric.label}`, icon: "success" });
+  cancelRecord();
 }
 
 const recordingDuration = ref(0);
+const voiceState = ref("idle");
 const voiceFilePath = ref("");
 let recorderManager = null;
 let audioContext = null;
 let durationTimer = null;
 
 function getRecorderManager() {
+  if (typeof wx === "undefined" || !wx.getRecorderManager) {
+    uni.showToast({ title: "当前环境不支持录音", icon: "none" });
+    return null;
+  }
+
   if (!recorderManager) {
     recorderManager = wx.getRecorderManager();
     recorderManager.onStop((res) => {
@@ -287,6 +387,11 @@ function getRecorderManager() {
 }
 
 function getAudioContext() {
+  if (typeof wx === "undefined" || !wx.createInnerAudioContext) {
+    uni.showToast({ title: "当前环境不支持播放录音", icon: "none" });
+    return null;
+  }
+
   if (!audioContext) {
     audioContext = wx.createInnerAudioContext();
     audioContext.onEnded(() => {
@@ -298,6 +403,7 @@ function getAudioContext() {
 
 function handleVoiceButton() {
   const rm = getRecorderManager();
+  if (!rm) return;
 
   if (voiceState.value === "idle") {
     voiceState.value = "recording";
@@ -308,6 +414,7 @@ function handleVoiceButton() {
     rm.stop();
   } else if (voiceState.value === "stopped") {
     const ac = getAudioContext();
+    if (!ac) return;
     ac.src = voiceFilePath.value;
     ac.play();
     uni.showToast({ title: "正在播放", icon: "none" });
@@ -324,6 +431,81 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @use "../../styles/shared.scss" as *;
 
+.record-hero {
+  padding: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22rpx;
+  border-color: #b7dccf;
+  background: linear-gradient(180deg, #ffffff, #edf8f3);
+}
+
+.hero-title {
+  display: block;
+  margin-top: 10rpx;
+  color: #18332d;
+  font-size: 40rpx;
+  font-weight: 900;
+  line-height: 1.28;
+}
+
+.hero-desc {
+  display: block;
+  margin-top: 10rpx;
+  color: #4a5c55;
+  font-size: 29rpx;
+  line-height: 1.45;
+}
+
+.hero-action {
+  flex: 0 0 174rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  border-radius: 8rpx;
+  background: #2f8f72;
+  color: #ffffff;
+  font-size: 31rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
+  box-shadow: 0 16rpx 34rpx rgba(47, 143, 114, 0.22);
+}
+
+.quick-record-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+
+.quick-record {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 126rpx;
+  padding: 24rpx;
+  text-align: left;
+}
+
+.quick-title {
+  display: block;
+  color: #18332d;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.quick-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: #2f8f72;
+  font-size: 29rpx;
+  font-weight: 800;
+}
+
 .input-card {
   padding: 30rpx;
 }
@@ -331,6 +513,36 @@ onUnmounted(() => {
 .metric-chooser {
   margin-bottom: 20rpx;
   padding: 24rpx;
+}
+
+.form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.form-title {
+  display: block;
+  margin-top: 8rpx;
+  color: #18332d;
+  font-size: 36rpx;
+  font-weight: 900;
+}
+
+.close-form {
+  flex: 0 0 108rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 62rpx;
+  border-radius: 999rpx;
+  background: #e7f0eb;
+  color: #2f8f72;
+  font-size: 29rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .metric-grid {

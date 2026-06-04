@@ -42,13 +42,19 @@
         >
           <view class="person-top">
             <text class="role-chip">{{ member.role }}</text>
-            <text class="age-text">{{ member.age }}岁</text>
+            <text class="age-text">{{ ageText(member) }}</text>
           </view>
           <text class="person-name">{{ member.name }}</text>
           <text class="person-scope">{{ member.visibleScope }}</text>
+          <view class="profile-summary">
+            <text>{{ member.gender || "性别待补充" }} · {{ member.heightCm || "待补充" }}cm / {{ member.weightKg || "待补充" }}kg</text>
+            <text>病史：{{ listText(member.chronicConditions, "无慢性病记录") }}</text>
+            <text>过敏：{{ allergyText(member) }}</text>
+          </view>
           <view class="tag-row">
             <text v-for="tag in member.tags" :key="tag">{{ tag }}</text>
           </view>
+          <button class="profile-link" @click.stop="openMember(member)">查看档案</button>
         </view>
       </view>
 
@@ -77,18 +83,60 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { viewerOptions } from "../../data/demoData";
-import { appState, switchViewer, visibleMembers } from "../../state/appState";
+import { appState, switchViewer } from "../../state/appState";
+import { listMembers } from "../../services/cloudService";
+
+const visibleMembers = ref([]);
 
 const currentViewerId = computed({
   get: () => appState.viewerId,
-  set: (value) => switchViewer(value)
+  set: async (value) => {
+    switchViewer(value);
+    await loadMembers();
+  }
 });
+
+onShow(loadMembers);
+
+async function loadMembers() {
+  visibleMembers.value = await listMembers(appState.viewerId);
+}
+
+function calculateAge(birthDate, fallbackAge) {
+  if (!birthDate) return fallbackAge || "--";
+  const birth = new Date(birthDate);
+  if (Number.isNaN(birth.getTime())) return fallbackAge || "--";
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const beforeBirthday =
+    today.getMonth() < birth.getMonth() ||
+    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+  if (beforeBirthday) age -= 1;
+  return age;
+}
+
+function ageText(member) {
+  return `${calculateAge(member.birthDate, member.age)}岁`;
+}
+
+function listText(list, emptyText) {
+  return Array.isArray(list) && list.length > 0 ? list.join("、") : emptyText;
+}
+
+function allergyText(member) {
+  const items = [
+    ...(member.drugAllergies || []),
+    ...(member.foodAllergies || [])
+  ];
+  return items.length > 0 ? items.join("、") : member.allergyNote || "无已知过敏";
+}
 
 function inviteMember() {
   uni.navigateTo({ url: "/pages/invite/index" });
@@ -193,7 +241,7 @@ function openSetting(title) {
 }
 
 .person-card {
-  min-height: 244rpx;
+  min-height: 390rpx;
   padding: 22rpx;
 }
 
@@ -244,6 +292,27 @@ function openSetting(title) {
   line-height: 1.36;
 }
 
+.profile-summary {
+  margin-top: 14rpx;
+  padding: 14rpx;
+  border-radius: 8rpx;
+  background: #f5faf7;
+}
+
+.profile-summary text {
+  display: block;
+  color: #38564e;
+  font-size: 27rpx;
+  line-height: 1.42;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.profile-summary text + text {
+  margin-top: 6rpx;
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
@@ -257,6 +326,22 @@ function openSetting(title) {
   background: #fff1cf;
   color: #8a641c;
   font-size: 30rpx;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 68rpx;
+  margin-top: 16rpx;
+  border-radius: 8rpx;
+  background: #dff2ea;
+  color: #2f8f72;
+  font-size: 29rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .settings-row {

@@ -1,5 +1,5 @@
 <script>
-const INIT_FLAG = "cloud_collections_ready";
+const INIT_FLAG = "cloud_collections_ready_v3";
 
 export default {
   onLaunch() {
@@ -21,7 +21,15 @@ export default {
         if (wx.getStorageSync(INIT_FLAG)) return;
 
         const db = wx.cloud.database();
-        const names = ["health_records", "medications", "care_records"];
+        const names = ["members", "health_records", "medications", "care_records", "meals"];
+        let readyCount = 0;
+
+        try {
+          const result = await wx.cloud.callFunction({ name: "initDB" });
+          console.log("[cloud] initDB result:", result.result);
+        } catch (e) {
+          console.warn("[cloud] initDB cloud function unavailable:", e.errMsg || e.message);
+        }
 
         for (const name of names) {
           try {
@@ -30,12 +38,15 @@ export default {
             });
             await db.collection(name).doc(res._id).remove();
             console.log(`[cloud] collection ${name} ready`);
+            readyCount += 1;
           } catch (e) {
             console.warn(`[cloud] init ${name}:`, e.errMsg || e.message);
           }
         }
 
-        wx.setStorageSync(INIT_FLAG, true);
+        if (readyCount === names.length) {
+          wx.setStorageSync(INIT_FLAG, true);
+        }
       } catch (e) {
         console.warn("[cloud] initCollections error:", e);
       }

@@ -39,7 +39,7 @@
 
         <view class="nutrition-grid">
           <view
-            v-for="macro in activeAnalysis.macros"
+            v-for="macro in activeMacros"
             :key="macro.label"
             class="nutrition-item"
             :class="`accent-${macro.accent}`"
@@ -91,12 +91,13 @@ import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { getMember } from "../../data/demoData";
-import { appState, visibleMembers } from "../../state/appState";
-import { uploadMealPhoto, saveMealRecord, listMealRecords } from "../../services/cloudService";
+import { appState } from "../../state/appState";
+import { uploadMealPhoto, saveMealRecord, listMealRecords, listMembers } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const mealImage = ref("");
 const mealRecords = ref([]);
+const visibleMembers = ref([]);
 const analysisOverride = ref(null);
 
 const fallbackAnalysis = computed(() => ({
@@ -113,15 +114,24 @@ const fallbackAnalysis = computed(() => ({
   advice: "请拍照上传一餐，系统会结合近期健康指标生成饮食匹配建议。"
 }));
 
-const selectedMember = computed(() => getMember(selectedMemberId.value));
+const selectedMember = computed(() => visibleMembers.value.find((member) => member.id === selectedMemberId.value) || getMember(selectedMemberId.value));
 const memberMeals = computed(() => mealRecords.value.filter((meal) => meal.memberId === selectedMemberId.value));
 const activeAnalysis = computed(() => analysisOverride.value || memberMeals.value[0] || fallbackAnalysis.value);
+const activeMacros = computed(() => Array.isArray(activeAnalysis.value.macros) ? activeAnalysis.value.macros : fallbackAnalysis.value.macros);
 
 async function loadMeals() {
+  await loadMembers();
   mealRecords.value = await listMealRecords(appState.viewerId, selectedMemberId.value);
 }
 
 onShow(loadMeals);
+
+async function loadMembers() {
+  visibleMembers.value = await listMembers(appState.viewerId);
+  if (!visibleMembers.value.some((member) => member.id === selectedMemberId.value)) {
+    selectedMemberId.value = visibleMembers.value[0]?.id || appState.viewerId || "me";
+  }
+}
 
 async function chooseMealImage() {
   uni.chooseImage({

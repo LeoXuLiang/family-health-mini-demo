@@ -4,6 +4,7 @@ import {
   getDefaultRemindTo,
   getMember,
   getVisibleMembers,
+  members,
   mealAnalyses,
   medicationLogs,
   normalizeRemindTo,
@@ -54,6 +55,32 @@ export async function listVisibleMembers(viewerId) {
   return getVisibleMembers(viewerId);
 }
 
+export async function listMembers(viewerId) {
+  return getVisibleMembers(viewerId);
+}
+
+export async function getMemberProfile(viewerId, memberId) {
+  ensureCanView(viewerId, memberId);
+  return getMember(memberId);
+}
+
+export async function updateMemberProfile(viewerId, memberId, payload) {
+  ensureCanOperate(viewerId, memberId);
+  const target = members.find((member) => member.id === memberId);
+  if (!target) {
+    throw new Error("未找到成员档案");
+  }
+
+  Object.assign(target, {
+    ...payload,
+    id: memberId,
+    updatedBy: viewerId,
+    updatedAt: new Date().toISOString()
+  });
+
+  return target;
+}
+
 export async function listMetricRecords(viewerId) {
   const visibleIds = new Set(getVisibleMembers(viewerId).map((member) => member.id));
   return recentRecords.filter((record) => visibleIds.has(record.memberId));
@@ -61,12 +88,14 @@ export async function listMetricRecords(viewerId) {
 
 export async function saveMetricRecord(viewerId, record) {
   ensureCanOperate(viewerId, record.memberId);
-  return {
+  const saved = {
     ...record,
     id: `saved-${Date.now()}`,
     createdBy: viewerId,
     createdAt: new Date().toISOString()
   };
+  recentRecords.unshift(saved);
+  return saved;
 }
 
 export async function analyzeMealImage(viewerId, memberId) {

@@ -3,6 +3,7 @@ import {
   canViewMember,
   getMember,
   getVisibleMembers,
+  members,
   normalizeRemindTo
 } from "../data/demoData";
 import * as fallback from "./mockBackend";
@@ -23,6 +24,26 @@ function db() {
 
 function coll(name) {
   return db().collection(name);
+}
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function mergeMember(defaultMember, cloudMember = {}) {
+  return {
+    ...defaultMember,
+    ...cloudMember,
+    id: cloudMember.memberId || cloudMember.id || defaultMember.id,
+    _id: cloudMember._id
+  };
+}
+
+function normalizeMemberDoc(member) {
+  const data = clone(member);
+  data.memberId = member.id;
+  delete data._id;
+  return data;
 }
 
 function ensureCanView(viewerId, memberId) {
@@ -65,6 +86,113 @@ async function safeGet(collName, fn) {
   }
 }
 
+async function seedMembersIfNeeded() {
+  if (!cloudReady()) return false;
+
+  const existing = await safeQuery("members", () => coll("members").limit(1).get());
+  if (existing.data.length > 0) return true;
+
+  try {
+    for (const member of members) {
+      await coll("members").add({
+        data: {
+          ...normalizeMemberDoc(member),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      });
+    }
+    return true;
+  } catch (error) {
+    if (isCollectionNotExist(error)) {
+      console.warn("[cloud] collection members not exist, use local fallback");
+      return false;
+    }
+    throw error;
+  }
+}
+
+function visibleMemberIds(viewerId) {
+  return getVisibleMembers(viewerId).map((member) => member.id);
+}
+
+// ============ Members ============
+
+export async function listMembers(viewerId) {
+  if (!cloudReady()) return fallback.listMembers(viewerId);
+
+  const seeded = await seedMembersIfNeeded();
+  if (!seeded) return fallback.listMembers(viewerId);
+
+  const visibleIds = visibleMemberIds(viewerId);
+  if (visibleIds.length === 0) return [];
+
+  const result = await safeQuery("members", () =>
+    coll("members")
+      .where({ memberId: db().command.in(visibleIds) })
+      .get()
+  );
+
+  if (result.data.length === 0) {
+    return fallback.listMembers(viewerId);
+  }
+
+  const byId = new Map(result.data.map((doc) => [doc.memberId || doc.id, doc]));
+  return visibleIds.map((id) => mergeMember(getMember(id), byId.get(id))).filter(Boolean);
+}
+
+export async function getMemberProfile(viewerId, memberId) {
+  if (!cloudReady()) return fallback.getMemberProfile(viewerId, memberId);
+
+  ensureCanView(viewerId, memberId);
+  const seeded = await seedMembersIfNeeded();
+  if (!seeded) return fallback.getMemberProfile(viewerId, memberId);
+
+  const result = await safeQuery("members", () =>
+    coll("members").where({ memberId }).limit(1).get()
+  );
+  const doc = result.data[0];
+
+  return mergeMember(getMember(memberId), doc);
+}
+
+export async function updateMemberProfile(viewerId, memberId, payload) {
+  if (!cloudReady()) return fallback.updateMemberProfile(viewerId, memberId, payload);
+
+  ensureCanOperate(viewerId, memberId);
+  const seeded = await seedMembersIfNeeded();
+  if (!seeded) return fallback.updateMemberProfile(viewerId, memberId, payload);
+
+  const now = new Date().toISOString();
+  const data = {
+    ...clone(payload),
+    memberId,
+    updatedBy: viewerId,
+    updatedAt: now
+  };
+  delete data.id;
+  delete data._id;
+
+  const existing = await safeQuery("members", () =>
+    coll("members").where({ memberId }).limit(1).get()
+  );
+
+  if (existing.data.length > 0) {
+    const docId = existing.data[0]._id;
+    await coll("members").doc(docId).update({ data });
+    return mergeMember(getMember(memberId), { ...existing.data[0], ...data, _id: docId });
+  }
+
+  const created = await coll("members").add({
+    data: {
+      ...normalizeMemberDoc(getMember(memberId)),
+      ...data,
+      createdAt: now
+    }
+  });
+  return mergeMember(getMember(memberId), { ...data, _id: created._id });
+}
+
 // ============ Health Records ============
 
 export async function saveMetricRecord(viewerId, record) {
@@ -82,21 +210,29 @@ export async function saveMetricRecord(viewerId, record) {
     createdAt: new Date().toISOString()
   };
 
-  const result = await coll("health_records").add({ data: doc });
-  return { ...doc, _id: result._id, id: result._id };
+  try {
+    const result = await coll("health_records").add({ data: doc });
+    return { ...doc, _id: result._id, id: result._id };
+  } catch (error) {
+    if (isCollectionNotExist(error)) {
+      console.warn("[cloud] collection health_records not exist, use local fallback");
+      return fallback.saveMetricRecord(viewerId, record);
+    }
+    throw error;
+  }
 }
 
 export async function listMetricRecords(viewerId) {
   if (!cloudReady()) return fallback.listMetricRecords(viewerId);
 
-  const visibleIds = getVisibleMembers(viewerId).map((m) => m.id);
+  const visibleIds = visibleMemberIds(viewerId);
   if (visibleIds.length === 0) return [];
 
   const result = await safeQuery("health_records", () =>
     coll("health_records")
       .where({ memberId: db().command.in(visibleIds) })
       .orderBy("createdAt", "desc")
-      .limit(20)
+      .limit(100)
       .get()
   );
 
@@ -130,14 +266,22 @@ export async function createMedicationReminder(viewerId, payload) {
     createdAt: new Date().toISOString()
   };
 
-  const result = await coll("medications").add({ data: doc });
-  return { ...doc, _id: result._id, id: result._id };
+  try {
+    const result = await coll("medications").add({ data: doc });
+    return { ...doc, _id: result._id, id: result._id };
+  } catch (error) {
+    if (isCollectionNotExist(error)) {
+      console.warn("[cloud] collection medications not exist, use local fallback");
+      return fallback.createMedicationReminder(viewerId, payload);
+    }
+    throw error;
+  }
 }
 
 export async function listMedicationTasks(viewerId, memberId = "") {
   if (!cloudReady()) return fallback.listMedicationTasks(viewerId, memberId);
 
-  const visibleIds = getVisibleMembers(viewerId).map((m) => m.id);
+  const visibleIds = visibleMemberIds(viewerId);
   if (visibleIds.length === 0) return [];
 
   let query = coll("medications").where({
@@ -212,8 +356,16 @@ export async function createCareRecord(viewerId, payload) {
     createdAt: new Date().toISOString()
   };
 
-  const result = await coll("care_records").add({ data: doc });
-  return { ...doc, _id: result._id, id: result._id };
+  try {
+    const result = await coll("care_records").add({ data: doc });
+    return { ...doc, _id: result._id, id: result._id };
+  } catch (error) {
+    if (isCollectionNotExist(error)) {
+      console.warn("[cloud] collection care_records not exist, use local fallback");
+      return fallback.createCareRecord(viewerId, payload);
+    }
+    throw error;
+  }
 }
 
 export async function listCareRecords(viewerId, memberId) {
@@ -266,8 +418,16 @@ export async function saveMealRecord(viewerId, payload) {
     createdAt: new Date().toISOString()
   };
 
-  const result = await coll("meals").add({ data: doc });
-  return { ...doc, _id: result._id, id: result._id };
+  try {
+    const result = await coll("meals").add({ data: doc });
+    return { ...doc, _id: result._id, id: result._id };
+  } catch (error) {
+    if (isCollectionNotExist(error)) {
+      console.warn("[cloud] collection meals not exist, use local fallback");
+      return fallback.analyzeMealImage(viewerId, payload.memberId);
+    }
+    throw error;
+  }
 }
 
 export async function listMealRecords(viewerId, memberId) {
@@ -286,4 +446,8 @@ export async function listMealRecords(viewerId, memberId) {
 
 // ============ Pass-through (non-cloud) ============
 
-export { loginWithWechat, bindMember, listVisibleMembers, analyzeMealImage, requestDataDeletion } from "./mockBackend";
+export async function listVisibleMembers(viewerId) {
+  return listMembers(viewerId);
+}
+
+export { loginWithWechat, bindMember, analyzeMealImage, requestDataDeletion } from "./mockBackend";

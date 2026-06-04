@@ -2,8 +2,8 @@
   "name": "家康小记",
   "appid": "__UNI__FAMILY_HEALTH_DEMO",
   "description": "家庭健康记录与饮食管理",
-  "versionName": "0.3.0",
-  "versionCode": "3",
+  "versionName": "0.4.0",
+  "versionCode": "4",
   "transformPx": false,
   "mp-weixin": {
     "appid": "wxf1e84dc47f481b3a",

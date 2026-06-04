@@ -14,8 +14,6 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-
 defineProps({
   active: {
     type: Number,

@@ -128,7 +128,7 @@
 
       <view v-for="task in allTasks" :key="`all-${task.id}`" class="compact-row card">
         <view>
-          <text class="compact-title">{{ getMember(task.memberId).name }} {{ task.medicine }}</text>
+          <text class="compact-title">{{ findMember(task.memberId).name }} {{ task.medicine }}</text>
           <text class="compact-desc">{{ task.time }} · {{ statusText(task) }}</text>
         </view>
         <text class="mini-chip">{{ task.repeat }}</text>
@@ -150,11 +150,12 @@ import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { getMember } from "../../data/demoData";
-import { appState, visibleMembers } from "../../state/appState";
-import { confirmMedication, createMedicationReminder, listMedicationTasks } from "../../services/cloudService";
+import { appState } from "../../state/appState";
+import { confirmMedication, createMedicationReminder, listMedicationTasks, listMembers } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
 const allTasks = ref([]);
+const visibleMembers = ref([]);
 const simulatedReminderShown = ref(false);
 const showAddForm = ref(false);
 const repeatOptions = ["每天", "工作日", "每周", "仅一次"];
@@ -169,7 +170,7 @@ const form = ref({
   doctorNote: "按医生医嘱服用，如需调整请咨询医生或药师。"
 });
 
-const selectedMember = computed(() => getMember(selectedMemberId.value));
+const selectedMember = computed(() => findMember(selectedMemberId.value));
 const memberNames = computed(() => visibleMembers.value.map((member) => member.name));
 const formMember = computed(() => visibleMembers.value[formMemberIndex.value] || visibleMembers.value[0] || selectedMember.value);
 const memberTasks = computed(() => allTasks.value.filter((task) => task.memberId === selectedMemberId.value));
@@ -178,6 +179,7 @@ const pendingCount = computed(() => memberTasks.value.filter((task) => task.toda
 onShow(loadTasks);
 
 async function loadTasks() {
+  await loadMembers();
   allTasks.value = await listMedicationTasks(appState.viewerId);
 
   const selectedHasTask = allTasks.value.some((task) => task.memberId === selectedMemberId.value);
@@ -190,6 +192,17 @@ async function loadTasks() {
     simulatedReminderShown.value = true;
     uni.showToast({ title: `${pendingTasks.length}项用药待确认`, icon: "none" });
   }
+}
+
+async function loadMembers() {
+  visibleMembers.value = await listMembers(appState.viewerId);
+  if (!visibleMembers.value.some((member) => member.id === selectedMemberId.value)) {
+    selectedMemberId.value = visibleMembers.value[0]?.id || appState.viewerId || "me";
+  }
+}
+
+function findMember(memberId) {
+  return visibleMembers.value.find((member) => member.id === memberId) || getMember(memberId);
 }
 
 function statusText(task) {
@@ -217,7 +230,7 @@ function actionText(task) {
 }
 
 function receiverNames(remindTo) {
-  return remindTo.map((id) => getMember(id).name).join("、");
+  return (remindTo || []).map((id) => findMember(id).name).join("、");
 }
 
 async function confirmTask(task) {

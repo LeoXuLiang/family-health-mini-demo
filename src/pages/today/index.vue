@@ -92,10 +92,11 @@ import MedicalNote from "../../components/MedicalNote.vue";
 import OnboardingPanel from "../../components/OnboardingPanel.vue";
 import TabBar from "../../components/TabBar.vue";
 import { canReceiveReminder, getMember, quickActions, reminders } from "../../data/demoData";
-import { appState, setPendingMetric, visibleMembers } from "../../state/appState";
-import { listMedicationTasks, listMetricRecords } from "../../services/cloudService";
+import { appState, setPendingMetric } from "../../state/appState";
+import { listMedicationTasks, listMetricRecords, listMembers } from "../../services/cloudService";
 
 const selectedMemberId = ref(appState.viewerId || "me");
+const visibleMembers = ref([]);
 const summaries = reactive({});
 
 const selectedSummary = computed(() => summaries[selectedMemberId.value] || defaultSummary());
@@ -136,11 +137,6 @@ function localDateStr(date) {
   return `${y}-${m}-${d}`;
 }
 
-function isToday(isoStr) {
-  if (!isoStr) return false;
-  return localDateStr(new Date(isoStr)) === localDateStr(new Date());
-}
-
 function computeLast7Days(records, memberId) {
   const trend = [0, 0, 0, 0, 0, 0, 0];
   const today = new Date();
@@ -153,6 +149,7 @@ function computeLast7Days(records, memberId) {
 }
 
 async function loadTodayData() {
+  await loadMembers();
   const records = await listMetricRecords(appState.viewerId);
   const todayStr = localDateStr(new Date());
   const todayRecords = records.filter((r) => localDateStr(new Date(r.createdAt)) === todayStr);
@@ -177,9 +174,17 @@ async function loadTodayData() {
   }
 }
 
-// 先用默认值填充，避免模板渲染时 summaries[member.id] 为 undefined
-for (const m of visibleMembers.value) {
-  summaries[m.id] = defaultSummary();
+async function loadMembers() {
+  visibleMembers.value = await listMembers(appState.viewerId);
+  if (!visibleMembers.value.some((member) => member.id === selectedMemberId.value)) {
+    selectedMemberId.value = visibleMembers.value[0]?.id || appState.viewerId || "me";
+  }
+
+  for (const member of visibleMembers.value) {
+    if (!summaries[member.id]) {
+      summaries[member.id] = defaultSummary();
+    }
+  }
 }
 onShow(loadTodayData);
 

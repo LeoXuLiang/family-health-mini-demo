@@ -5,7 +5,7 @@
       :key="member.id"
       class="member-pill"
       :class="{ active: modelValue === member.id }"
-      @click="$emit('update:modelValue', member.id)"
+      @click="selectMember(member.id)"
     >
       {{ member.shortName }}
     </button>
@@ -24,7 +24,11 @@ defineProps({
   }
 });
 
-defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue"]);
+
+function selectMember(memberId) {
+  emit("update:modelValue", memberId);
+}
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <view class="page">
-    <PageHeader :title="member.name" action-text="存" @action="saveProfile" />
+    <PageHeader :title="profile.name || member.name" action-text="存" @action="saveProfile" />
 
     <view class="content">
       <view class="profile-card card">
@@ -231,6 +231,8 @@ import { onLoad } from "@dcloudio/uni-app";
 import PageHeader from "../../components/PageHeader.vue";
 import MedicalNote from "../../components/MedicalNote.vue";
 import { getMember, visitRecords } from "../../data/demoData";
+import { appState } from "../../state/appState";
+import { getMemberProfile, updateMemberProfile } from "../../services/cloudService";
 
 const genderOptions = ["男", "女", "其他"];
 const bloodTypeOptions = ["待补充", "A", "B", "AB", "O"];
@@ -242,18 +244,19 @@ const allTagPresets = [
 ];
 
 const profile = reactive(createProfile(getMember("me")));
-let memberId = "me";
+const memberId = ref("me");
 const tagInput = ref("");
 
-onLoad((query) => {
-  memberId = query.id || "me";
-  Object.assign(profile, createProfile(getMember(memberId)));
+onLoad(async (query) => {
+  memberId.value = query.id || "me";
+  const loaded = await getMemberProfile(appState.viewerId, memberId.value);
+  Object.assign(profile, createProfile(loaded));
 });
 
-const member = computed(() => getMember(memberId));
+const member = computed(() => getMember(memberId.value));
 const genderIndex = computed(() => Math.max(genderOptions.indexOf(profile.gender), 0));
 const bloodTypeIndex = computed(() => Math.max(bloodTypeOptions.indexOf(profile.bloodType || "待补充"), 0));
-const memberVisits = computed(() => visitRecords.filter((record) => record.memberId === memberId));
+const memberVisits = computed(() => visitRecords.filter((record) => record.memberId === memberId.value));
 const availablePresets = computed(() => allTagPresets.filter((tag) => !profile.tags.includes(tag)));
 
 const bmiValue = computed(() => {
@@ -346,9 +349,11 @@ function changeBloodType(event) {
   profile.bloodType = value === "待补充" ? "" : value;
 }
 
-function saveProfile() {
-  const target = getMember(memberId);
-  Object.assign(target, {
+function buildProfilePayload(target) {
+  const drugAllergies = textToList(profile.drugAllergiesText);
+  const foodAllergies = textToList(profile.foodAllergiesText);
+
+  return {
     name: profile.name || target.name,
     shortName: profile.name || target.shortName,
     gender: profile.gender,
@@ -366,12 +371,13 @@ function saveProfile() {
       fasting: Number(profile.fastingGlucose) || 0,
       postprandial: Number(profile.postprandialGlucose) || 0
     },
+    age: Number(ageText.value.replace("岁", "")) || target.age,
     chronicConditions: textToList(profile.chronicConditionsText),
-    drugAllergies: textToList(profile.drugAllergiesText),
-    foodAllergies: textToList(profile.foodAllergiesText),
+    drugAllergies,
+    foodAllergies,
     allergyNote: [
-      ...textToList(profile.drugAllergiesText).map((item) => `药物：${item}`),
-      ...textToList(profile.foodAllergiesText).map((item) => `食物：${item}`)
+      ...drugAllergies.map((item) => `药物：${item}`),
+      ...foodAllergies.map((item) => `食物：${item}`)
     ].join("；") || "无已知过敏",
     medicationNote: profile.medicationNote,
     emergencyContact: {
@@ -380,9 +386,25 @@ function saveProfile() {
       phone: profile.emergencyPhone
     },
     tags: [...profile.tags]
-  });
+  };
+}
+
+async function saveProfile() {
+  const target = getMember(memberId.value);
+  const payload = buildProfilePayload(target);
+
+  try {
+    const saved = await updateMemberProfile(appState.viewerId, memberId.value, payload);
+    Object.assign(target, saved);
+  } catch (error) {
+    uni.showToast({ title: error.message || "档案保存失败", icon: "none" });
+    return;
+  }
 
   uni.showToast({ title: "档案已保存", icon: "success" });
+  setTimeout(() => {
+    uni.navigateBack();
+  }, 600);
 }
 
 function goBack() {
@@ -390,7 +412,7 @@ function goBack() {
 }
 
 function goCare() {
-  uni.navigateTo({ url: `/pages/care/index?id=${memberId}` });
+  uni.navigateTo({ url: `/pages/care/index?id=${memberId.value}` });
 }
 </script>
 
